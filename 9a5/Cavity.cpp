@@ -1,8 +1,8 @@
 //
 // Created by utena on 17-5-8.
 //
-#include "amber_netcdf.hpp"
-#include "amber_parm_1.0.hpp"
+#include "enthaply/amber_netcdf.hpp"
+#include "enthaply/amber_parm_1.0.hpp"
 #include<cmath>
 #include<cstdlib>
 #include<cstring>
@@ -10,8 +10,8 @@
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 10
-#define end_nc  20
+#define start_nc 2
+#define end_nc  3
 #define dt 1
 #define name_parm7 "density_dis9a5.parm7"
 #define psi 2.4
@@ -19,7 +19,7 @@
 #define dx 0.2
 #define cut_off 24
 #define max_size 2000
-#define max_life 10000
+#define max_life 2000
 #define rapid_change_constant 5
 
 double density(double x,double y, double x_W, double y_W){
@@ -209,10 +209,10 @@ int main() {
                             judge_matrix[i][j] = 0;
                         }
                        //通过密度矩阵判断是否为空穴
-                        std::cout<<judge_matrix[i][j]<<' ';
+                        //std::cout<<judge_matrix[i][j]<<' ';
                         sum_matrix[i][j]+=judge_matrix[i][j];
                     }
-                    std::cout<<std::endl;
+                    //std::cout<<std::endl;
                 }
 
                 int large_cavity_num=0;
