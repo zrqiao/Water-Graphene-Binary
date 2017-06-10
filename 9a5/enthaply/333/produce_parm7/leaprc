@@ -1,0 +1,26 @@
+logFile leap.log
+
+parm10 = loadamberparams parm10.dat
+
+loadOff atomic_ions.lib
+loadamberparams frcmod.ionsjc_tip3p
+loadOff solvents.lib
+loadamberparams frcmod.tip3pf
+HOH = TP3
+WAT = TP3
+
+
+loadAmberParams cnt.frcmod
+loadoff graphene.lib
+
+pdb2 = loadpdb "wat_c.pdb"
+
+bond pdb2.1.A1 pdb2.2.A1
+bond pdb2.1.A56 pdb2.2.A56
+bond pdb2.1.B346 pdb2.2.B346
+bond pdb2.1.B399 pdb2.2.B399 
+
+setBox pdb2 vdw
+savepdb pdb2 "wat_c_savepdb.pdb"
+saveamberparm pdb2 wat_c.parm7 wat_c.rst7
+quit

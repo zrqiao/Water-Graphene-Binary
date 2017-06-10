@@ -1,0 +1,17 @@
+NPT 20nsMD
+ &cntrl
+  imin = 0, irest = 0, ntx = 1,
+  ntb = 1, pres0 = 0,
+  cut = 10, ntr = 0,
+  ntc = 2, ntf = 2,
+  tempi = 280.0, temp0 = 280.0,
+  ntt = 3, gamma_ln = 1.0,
+  nstlim = 0, dt = 0.002,
+  ntpr = 500, ntwx = 1, ntwr = 1000,
+  nscm = 500, ioutfm = 1, iwrap = 1
+ /
+#Hold the CNT fixed
+#500.0
+#RES 1 2
+END
+END

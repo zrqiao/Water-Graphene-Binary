@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fit>
+<fit version="1.0">
+<model>Boltzmann</model>
+<type>0</type>
+<function>A2+(A1-A2)/(1+exp((x-x0)/dx))</function>
+<parameter>
+    <name>A1</name>
+    <explanation>init value</explanation>
+    <value>7.0000000000000e-01</value>
+</parameter>
+<parameter>
+    <name>A2</name>
+    <explanation>final value</explanation>
+    <value>1.0000000000000e+00</value>
+</parameter>
+<parameter>
+    <name>x0</name>
+    <explanation>center</explanation>
+    <value>1.0000000000000e+00</value>
+</parameter>
+<parameter>
+    <name>dx</name>
+    <explanation>time constant</explanation>
+    <value>1.0000000000000e+00</value>
+</parameter>
+</fit>
