@@ -1,0 +1,65 @@
+Carbon NanoTube
+MASS
+ca 12.010        0.360               sp2 C pure aromatic
+cb 12.010        0.360               sp2 C pure aromatic
+cc 12.010        0.360               sp2 C pure aromatic
+cd 12.010        0.360               sp2 C pure aromatic
+ce 12.010        0.360               sp2 C pure aromatic
+
+
+BOND
+ca-ca  938.0  1.4
+ca-cb  938.0  1.4
+ca-cc  938.0  1.4
+cc-ce  938.0  1.4
+cd-ce  938.0  1.4
+ca-cd  938.0  1.4
+cb-cb  938.0  9.5
+ce-ce  938.0  9.5
+
+
+
+ANGLE
+ca-ca-ca  126.0  120.0 
+ca-ca-cb  126.0  120.0 
+ca-ca-cc  126.0  120.0 
+ca-cc-ce  126.0  120.0 
+cc-ce-cd  126.0  120.0 
+ca-cd-ce  126.0  120.0 
+ca-cb-cb  126.0   90.0 
+cc-ce-ce  126.0   90.0 
+cd-ce-ce  126.0   90.0 
+ca-ca-cd  126.0   90.0 
+
+
+
+DIHE
+ca-ca-ca-ca    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-ca-cb-cb    4   14.50         90.0             2.         intrpol.bsd.on C6H6
+ca-cb-cb-ca    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-cc-ce-ce    4   14.50         90.0             2.         intrpol.bsd.on C6H6
+ca-cd-ce-ce    4   14.50         90.0             2.         intrpol.bsd.on C6H6
+cc-ce-ce-cc    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+cd-ce-ce-cd    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+cc-ce-ce-cd    4   14.50         60.0             2.         intrpol.bsd.on C6H6
+cd-ce-ce-cc    4   14.50         60.0             2.         intrpol.bsd.on C6H6
+ca-ca-ca-cb    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-ca-ca-cc    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-ca-ca-cd    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-cd-ce-cc    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+cd-ce-cc-ca    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-ca-cc-ce    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+ca-ca-cd-ce    4   14.50        180.0             2.         intrpol.bsd.on C6H6
+
+
+
+IMPROPER
+
+
+
+NONBON
+  ca          1.9080  0.086             same as c3 
+  cb          1.9080  0.086             same as c3 
+  cc          1.9080  0.086             same as c3 
+  cd          1.9080  0.086             same as c3 
+  ce          1.9080  0.086             same as c3 

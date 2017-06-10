@@ -1,0 +1,17 @@
+logFile leap.log
+
+parm10 = loadamberparams parm10.dat
+
+loadOff atomic_ions.lib
+loadamberparams frcmod.ionsjc_tip3p
+loadOff solvents.lib
+loadamberparams frcmod.tip3pf
+HOH = TP3
+WAT = TP3
+
+pdb2 = loadpdb "wat_confined.pdb"
+
+setBox pdb2 vdw
+savepdb pdb2 "wat_confined_savepdb.pdb"
+saveamberparm pdb2 wat_confined.parm7 wat_confined.rst7
+quit

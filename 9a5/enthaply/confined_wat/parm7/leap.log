@@ -1,0 +1,543 @@
+log started: Thu Mar 23 19:23:45 2017
+
+Log file: ./leap.log
+> 
+> parm10 = loadamberparams parm10.dat
+Loading parameters: /opt/amber14/dat/leap/parm/parm10.dat
+Reading title:
+PARM99 + frcmod.ff99SB + frcmod.parmbsc0 + OL3 for RNA
+ (UNKNOWN ATOM TYPE: H [no types loaded])
+ (UNKNOWN ATOM TYPE: HO [no types loaded])
+ (UNKNOWN ATOM TYPE: HS [no types loaded])
+ (UNKNOWN ATOM TYPE: HC [no types loaded])
+ (UNKNOWN ATOM TYPE: H1 [no types loaded])
+ (UNKNOWN ATOM TYPE: H2 [no types loaded])
+ (UNKNOWN ATOM TYPE: H3 [no types loaded])
+ (UNKNOWN ATOM TYPE: HP [no types loaded])
+ (UNKNOWN ATOM TYPE: HA [no types loaded])
+ (UNKNOWN ATOM TYPE: H4 [no types loaded])
+ (UNKNOWN ATOM TYPE: H5 [no types loaded])
+ (UNKNOWN ATOM TYPE: HW [no types loaded])
+ (UNKNOWN ATOM TYPE: HZ [no types loaded])
+ (UNKNOWN ATOM TYPE: O [no types loaded])
+ (UNKNOWN ATOM TYPE: O2 [no types loaded])
+ (UNKNOWN ATOM TYPE: OW [no types loaded])
+ (UNKNOWN ATOM TYPE: OH [no types loaded])
+ (UNKNOWN ATOM TYPE: OS [no types loaded])
+ (UNKNOWN ATOM TYPE: OP [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: C* [no types loaded])
+ (UNKNOWN ATOM TYPE: CI [no types loaded])
+ (UNKNOWN ATOM TYPE: C5 [no types loaded])
+ (UNKNOWN ATOM TYPE: C4 [no types loaded])
+ (UNKNOWN ATOM TYPE: CT [no types loaded])
+ (UNKNOWN ATOM TYPE: CX [no types loaded])
+ (UNKNOWN ATOM TYPE: C [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N [no types loaded])
+ (UNKNOWN ATOM TYPE: N3 [no types loaded])
+ (UNKNOWN ATOM TYPE: S [no types loaded])
+ (UNKNOWN ATOM TYPE: SH [no types loaded])
+ (UNKNOWN ATOM TYPE: P [no types loaded])
+ (UNKNOWN ATOM TYPE: MG [no types loaded])
+ (UNKNOWN ATOM TYPE: C0 [no types loaded])
+ (UNKNOWN ATOM TYPE: Zn [no types loaded])
+ (UNKNOWN ATOM TYPE: F [no types loaded])
+ (UNKNOWN ATOM TYPE: Cl [no types loaded])
+ (UNKNOWN ATOM TYPE: Br [no types loaded])
+ (UNKNOWN ATOM TYPE: I [no types loaded])
+ (UNKNOWN ATOM TYPE: EP [no types loaded])
+> 
+> loadOff atomic_ions.lib
+Loading library: /opt/amber14/dat/leap/lib/atomic_ions.lib
+Loading: AG
+Loading: AL
+Loading: Ag
+Loading: BA
+Loading: BR
+Loading: Be
+Loading: CA
+Loading: CD
+Loading: CE
+Loading: CL
+Loading: CO
+Loading: CR
+Loading: CS
+Loading: CU
+Loading: CU1
+Loading: Ce
+Loading: Cl-
+Loading: Cr
+Loading: Dy
+Loading: EU
+Loading: EU3
+Loading: Er
+Loading: F
+Loading: FE
+Loading: FE2
+Loading: GD3
+Loading: H3O+
+Loading: HE+
+Loading: HG
+Loading: HZ+
+Loading: Hf
+Loading: IN
+Loading: IOD
+Loading: K
+Loading: K+
+Loading: LA
+Loading: LI
+Loading: LU
+Loading: MG
+Loading: MN
+Loading: NA
+Loading: NH4
+Loading: NI
+Loading: Na+
+Loading: Nd
+Loading: PB
+Loading: PD
+Loading: PR
+Loading: PT
+Loading: Pu
+Loading: RB
+Loading: Ra
+Loading: SM
+Loading: SR
+Loading: Sm
+Loading: Sn
+Loading: TB
+Loading: TL
+Loading: Th
+Loading: Tl
+Loading: Tm
+Loading: U4+
+Loading: V2+
+Loading: Y
+Loading: YB2
+Loading: ZN
+Loading: Zr
+> loadamberparams frcmod.ionsjc_tip3p
+Loading parameters: /opt/amber14/dat/leap/parm/frcmod.ionsjc_tip3p
+Reading force field modification type file (frcmod)
+Reading title:
+Monovalent ion parameters for Ewald and TIP3P water from Joung & Cheatham JPCB (2008)
+ (UNKNOWN ATOM TYPE: Li+ [no types loaded])
+ (UNKNOWN ATOM TYPE: Na+ [no types loaded])
+ (UNKNOWN ATOM TYPE: K+ [no types loaded])
+ (UNKNOWN ATOM TYPE: Rb+ [no types loaded])
+ (UNKNOWN ATOM TYPE: Cs+ [no types loaded])
+ (UNKNOWN ATOM TYPE: F- [no types loaded])
+ (UNKNOWN ATOM TYPE: Cl- [no types loaded])
+ (UNKNOWN ATOM TYPE: Br- [no types loaded])
+ (UNKNOWN ATOM TYPE: I- [no types loaded])
+> loadOff solvents.lib
+Loading library: /opt/amber14/dat/leap/lib/solvents.lib
+Loading: CHCL3BOX
+Loading: DC4
+Loading: MEOHBOX
+Loading: NMABOX
+Loading: OPC
+Loading: OPCBOX
+Loading: PL3
+Loading: POL3BOX
+Loading: QSPCFWBOX
+Loading: SPC
+Loading: SPCBOX
+Loading: SPCFWBOX
+Loading: SPF
+Loading: SPG
+Loading: T4E
+Loading: TIP3PBOX
+Loading: TIP3PFBOX
+Loading: TIP4PBOX
+Loading: TIP4PEWBOX
+Loading: TIP5PBOX
+Loading: TP3
+Loading: TP4
+Loading: TP5
+Loading: TPF
+> loadamberparams frcmod.tip3pf
+Loading parameters: /opt/amber14/dat/leap/parm/frcmod.tip3pf
+Reading force field modification type file (frcmod)
+Reading title:
+This is TIP3P (model F) of Price and Brooks, JCP 121:10096, 2004 
+ (UNKNOWN ATOM TYPE: OW [no types loaded])
+> HOH = TP3
+> WAT = TP3
+> 
+> pdb2 = loadpdb "wat_confined.pdb"
+Loading PDB file: ./wat_confined.pdb
+Enter zPdbReadScan from call depth  0.
+Exit  zPdbReadScan from call depth  0.
+Matching PDB residue names to LEaP variables.
+(Residue 0: WAT, Terminal/last, was not found in name map.)
+(Residue 1: WAT, Terminal/last, was not found in name map.)
+(Residue 2: WAT, Terminal/last, was not found in name map.)
+(Residue 3: WAT, Terminal/last, was not found in name map.)
+(Residue 4: WAT, Terminal/last, was not found in name map.)
+(Residue 5: WAT, Terminal/last, was not found in name map.)
+(Residue 6: WAT, Terminal/last, was not found in name map.)
+(Residue 7: WAT, Terminal/last, was not found in name map.)
+(Residue 8: WAT, Terminal/last, was not found in name map.)
+(Residue 9: WAT, Terminal/last, was not found in name map.)
+(Residue 10: WAT, Terminal/last, was not found in name map.)
+(Residue 11: WAT, Terminal/last, was not found in name map.)
+(Residue 12: WAT, Terminal/last, was not found in name map.)
+(Residue 13: WAT, Terminal/last, was not found in name map.)
+(Residue 14: WAT, Terminal/last, was not found in name map.)
+(Residue 15: WAT, Terminal/last, was not found in name map.)
+(Residue 16: WAT, Terminal/last, was not found in name map.)
+(Residue 17: WAT, Terminal/last, was not found in name map.)
+(Residue 18: WAT, Terminal/last, was not found in name map.)
+(Residue 19: WAT, Terminal/last, was not found in name map.)
+(Residue 20: WAT, Terminal/last, was not found in name map.)
+(Residue 21: WAT, Terminal/last, was not found in name map.)
+(Residue 22: WAT, Terminal/last, was not found in name map.)
+(Residue 23: WAT, Terminal/last, was not found in name map.)
+(Residue 24: WAT, Terminal/last, was not found in name map.)
+(Residue 25: WAT, Terminal/last, was not found in name map.)
+(Residue 26: WAT, Terminal/last, was not found in name map.)
+(Residue 27: WAT, Terminal/last, was not found in name map.)
+(Residue 28: WAT, Terminal/last, was not found in name map.)
+(Residue 29: WAT, Terminal/last, was not found in name map.)
+(Residue 30: WAT, Terminal/last, was not found in name map.)
+(Residue 31: WAT, Terminal/last, was not found in name map.)
+(Residue 32: WAT, Terminal/last, was not found in name map.)
+(Residue 33: WAT, Terminal/last, was not found in name map.)
+(Residue 34: WAT, Terminal/last, was not found in name map.)
+(Residue 35: WAT, Terminal/last, was not found in name map.)
+(Residue 36: WAT, Terminal/last, was not found in name map.)
+(Residue 37: WAT, Terminal/last, was not found in name map.)
+(Residue 38: WAT, Terminal/last, was not found in name map.)
+(Residue 39: WAT, Terminal/last, was not found in name map.)
+(Residue 40: WAT, Terminal/last, was not found in name map.)
+(Residue 41: WAT, Terminal/last, was not found in name map.)
+(Residue 42: WAT, Terminal/last, was not found in name map.)
+(Residue 43: WAT, Terminal/last, was not found in name map.)
+(Residue 44: WAT, Terminal/last, was not found in name map.)
+(Residue 45: WAT, Terminal/last, was not found in name map.)
+(Residue 46: WAT, Terminal/last, was not found in name map.)
+(Residue 47: WAT, Terminal/last, was not found in name map.)
+(Residue 48: WAT, Terminal/last, was not found in name map.)
+(Residue 49: WAT, Terminal/last, was not found in name map.)
+(Residue 50: WAT, Terminal/last, was not found in name map.)
+(Residue 51: WAT, Terminal/last, was not found in name map.)
+(Residue 52: WAT, Terminal/last, was not found in name map.)
+(Residue 53: WAT, Terminal/last, was not found in name map.)
+(Residue 54: WAT, Terminal/last, was not found in name map.)
+(Residue 55: WAT, Terminal/last, was not found in name map.)
+(Residue 56: WAT, Terminal/last, was not found in name map.)
+(Residue 57: WAT, Terminal/last, was not found in name map.)
+(Residue 58: WAT, Terminal/last, was not found in name map.)
+(Residue 59: WAT, Terminal/last, was not found in name map.)
+(Residue 60: WAT, Terminal/last, was not found in name map.)
+(Residue 61: WAT, Terminal/last, was not found in name map.)
+(Residue 62: WAT, Terminal/last, was not found in name map.)
+(Residue 63: WAT, Terminal/last, was not found in name map.)
+(Residue 64: WAT, Terminal/last, was not found in name map.)
+(Residue 65: WAT, Terminal/last, was not found in name map.)
+(Residue 66: WAT, Terminal/last, was not found in name map.)
+(Residue 67: WAT, Terminal/last, was not found in name map.)
+(Residue 68: WAT, Terminal/last, was not found in name map.)
+(Residue 69: WAT, Terminal/last, was not found in name map.)
+(Residue 70: WAT, Terminal/last, was not found in name map.)
+(Residue 71: WAT, Terminal/last, was not found in name map.)
+(Residue 72: WAT, Terminal/last, was not found in name map.)
+(Residue 73: WAT, Terminal/last, was not found in name map.)
+(Residue 74: WAT, Terminal/last, was not found in name map.)
+(Residue 75: WAT, Terminal/last, was not found in name map.)
+(Residue 76: WAT, Terminal/last, was not found in name map.)
+(Residue 77: WAT, Terminal/last, was not found in name map.)
+(Residue 78: WAT, Terminal/last, was not found in name map.)
+(Residue 79: WAT, Terminal/last, was not found in name map.)
+(Residue 80: WAT, Terminal/last, was not found in name map.)
+(Residue 81: WAT, Terminal/last, was not found in name map.)
+(Residue 82: WAT, Terminal/last, was not found in name map.)
+(Residue 83: WAT, Terminal/last, was not found in name map.)
+(Residue 84: WAT, Terminal/last, was not found in name map.)
+(Residue 85: WAT, Terminal/last, was not found in name map.)
+(Residue 86: WAT, Terminal/last, was not found in name map.)
+(Residue 87: WAT, Terminal/last, was not found in name map.)
+(Residue 88: WAT, Terminal/last, was not found in name map.)
+(Residue 89: WAT, Terminal/last, was not found in name map.)
+(Residue 90: WAT, Terminal/last, was not found in name map.)
+(Residue 91: WAT, Terminal/last, was not found in name map.)
+(Residue 92: WAT, Terminal/last, was not found in name map.)
+(Residue 93: WAT, Terminal/last, was not found in name map.)
+(Residue 94: WAT, Terminal/last, was not found in name map.)
+(Residue 95: WAT, Terminal/last, was not found in name map.)
+(Residue 96: WAT, Terminal/last, was not found in name map.)
+(Residue 97: WAT, Terminal/last, was not found in name map.)
+(Residue 98: WAT, Terminal/last, was not found in name map.)
+(Residue 99: WAT, Terminal/last, was not found in name map.)
+(Residue 100: WAT, Terminal/last, was not found in name map.)
+(Residue 101: WAT, Terminal/last, was not found in name map.)
+(Residue 102: WAT, Terminal/last, was not found in name map.)
+(Residue 103: WAT, Terminal/last, was not found in name map.)
+(Residue 104: WAT, Terminal/last, was not found in name map.)
+(Residue 105: WAT, Terminal/last, was not found in name map.)
+(Residue 106: WAT, Terminal/last, was not found in name map.)
+(Residue 107: WAT, Terminal/last, was not found in name map.)
+(Residue 108: WAT, Terminal/last, was not found in name map.)
+(Residue 109: WAT, Terminal/last, was not found in name map.)
+(Residue 110: WAT, Terminal/last, was not found in name map.)
+(Residue 111: WAT, Terminal/last, was not found in name map.)
+(Residue 112: WAT, Terminal/last, was not found in name map.)
+(Residue 113: WAT, Terminal/last, was not found in name map.)
+(Residue 114: WAT, Terminal/last, was not found in name map.)
+(Residue 115: WAT, Terminal/last, was not found in name map.)
+(Residue 116: WAT, Terminal/last, was not found in name map.)
+(Residue 117: WAT, Terminal/last, was not found in name map.)
+(Residue 118: WAT, Terminal/last, was not found in name map.)
+(Residue 119: WAT, Terminal/last, was not found in name map.)
+(Residue 120: WAT, Terminal/last, was not found in name map.)
+(Residue 121: WAT, Terminal/last, was not found in name map.)
+(Residue 122: WAT, Terminal/last, was not found in name map.)
+(Residue 123: WAT, Terminal/last, was not found in name map.)
+(Residue 124: WAT, Terminal/last, was not found in name map.)
+(Residue 125: WAT, Terminal/last, was not found in name map.)
+(Residue 126: WAT, Terminal/last, was not found in name map.)
+(Residue 127: WAT, Terminal/last, was not found in name map.)
+(Residue 128: WAT, Terminal/last, was not found in name map.)
+(Residue 129: WAT, Terminal/last, was not found in name map.)
+(Residue 130: WAT, Terminal/last, was not found in name map.)
+(Residue 131: WAT, Terminal/last, was not found in name map.)
+(Residue 132: WAT, Terminal/last, was not found in name map.)
+(Residue 133: WAT, Terminal/last, was not found in name map.)
+(Residue 134: WAT, Terminal/last, was not found in name map.)
+(Residue 135: WAT, Terminal/last, was not found in name map.)
+(Residue 136: WAT, Terminal/last, was not found in name map.)
+(Residue 137: WAT, Terminal/last, was not found in name map.)
+(Residue 138: WAT, Terminal/last, was not found in name map.)
+(Residue 139: WAT, Terminal/last, was not found in name map.)
+(Residue 140: WAT, Terminal/last, was not found in name map.)
+(Residue 141: WAT, Terminal/last, was not found in name map.)
+(Residue 142: WAT, Terminal/last, was not found in name map.)
+(Residue 143: WAT, Terminal/last, was not found in name map.)
+(Residue 144: WAT, Terminal/last, was not found in name map.)
+(Residue 145: WAT, Terminal/last, was not found in name map.)
+(Residue 146: WAT, Terminal/last, was not found in name map.)
+(Residue 147: WAT, Terminal/last, was not found in name map.)
+(Residue 148: WAT, Terminal/last, was not found in name map.)
+(Residue 149: WAT, Terminal/last, was not found in name map.)
+(Residue 150: WAT, Terminal/last, was not found in name map.)
+(Residue 151: WAT, Terminal/last, was not found in name map.)
+(Residue 152: WAT, Terminal/last, was not found in name map.)
+(Residue 153: WAT, Terminal/last, was not found in name map.)
+(Residue 154: WAT, Terminal/last, was not found in name map.)
+(Residue 155: WAT, Terminal/last, was not found in name map.)
+(Residue 156: WAT, Terminal/last, was not found in name map.)
+(Residue 157: WAT, Terminal/last, was not found in name map.)
+(Residue 158: WAT, Terminal/last, was not found in name map.)
+(Residue 159: WAT, Terminal/last, was not found in name map.)
+(Residue 160: WAT, Terminal/last, was not found in name map.)
+(Residue 161: WAT, Terminal/last, was not found in name map.)
+(Residue 162: WAT, Terminal/last, was not found in name map.)
+(Residue 163: WAT, Terminal/last, was not found in name map.)
+(Residue 164: WAT, Terminal/last, was not found in name map.)
+(Residue 165: WAT, Terminal/last, was not found in name map.)
+(Residue 166: WAT, Terminal/last, was not found in name map.)
+(Residue 167: WAT, Terminal/last, was not found in name map.)
+(Residue 168: WAT, Terminal/last, was not found in name map.)
+(Residue 169: WAT, Terminal/last, was not found in name map.)
+(Residue 170: WAT, Terminal/last, was not found in name map.)
+(Residue 171: WAT, Terminal/last, was not found in name map.)
+(Residue 172: WAT, Terminal/last, was not found in name map.)
+(Residue 173: WAT, Terminal/last, was not found in name map.)
+(Residue 174: WAT, Terminal/last, was not found in name map.)
+(Residue 175: WAT, Terminal/last, was not found in name map.)
+(Residue 176: WAT, Terminal/last, was not found in name map.)
+(Residue 177: WAT, Terminal/last, was not found in name map.)
+(Residue 178: WAT, Terminal/last, was not found in name map.)
+(Residue 179: WAT, Terminal/last, was not found in name map.)
+(Residue 180: WAT, Terminal/last, was not found in name map.)
+(Residue 181: WAT, Terminal/last, was not found in name map.)
+(Residue 182: WAT, Terminal/last, was not found in name map.)
+(Residue 183: WAT, Terminal/last, was not found in name map.)
+(Residue 184: WAT, Terminal/last, was not found in name map.)
+(Residue 185: WAT, Terminal/last, was not found in name map.)
+(Residue 186: WAT, Terminal/last, was not found in name map.)
+(Residue 187: WAT, Terminal/last, was not found in name map.)
+(Residue 188: WAT, Terminal/last, was not found in name map.)
+(Residue 189: WAT, Terminal/last, was not found in name map.)
+(Residue 190: WAT, Terminal/last, was not found in name map.)
+(Residue 191: WAT, Terminal/last, was not found in name map.)
+(Residue 192: WAT, Terminal/last, was not found in name map.)
+(Residue 193: WAT, Terminal/last, was not found in name map.)
+(Residue 194: WAT, Terminal/last, was not found in name map.)
+(Residue 195: WAT, Terminal/last, was not found in name map.)
+(Residue 196: WAT, Terminal/last, was not found in name map.)
+(Residue 197: WAT, Terminal/last, was not found in name map.)
+(Residue 198: WAT, Terminal/last, was not found in name map.)
+(Residue 199: WAT, Terminal/last, was not found in name map.)
+(Residue 200: WAT, Terminal/last, was not found in name map.)
+(Residue 201: WAT, Terminal/last, was not found in name map.)
+(Residue 202: WAT, Terminal/last, was not found in name map.)
+(Residue 203: WAT, Terminal/last, was not found in name map.)
+(Residue 204: WAT, Terminal/last, was not found in name map.)
+(Residue 205: WAT, Terminal/last, was not found in name map.)
+(Residue 206: WAT, Terminal/last, was not found in name map.)
+(Residue 207: WAT, Terminal/last, was not found in name map.)
+(Residue 208: WAT, Terminal/last, was not found in name map.)
+(Residue 209: WAT, Terminal/last, was not found in name map.)
+(Residue 210: WAT, Terminal/last, was not found in name map.)
+(Residue 211: WAT, Terminal/last, was not found in name map.)
+(Residue 212: WAT, Terminal/last, was not found in name map.)
+(Residue 213: WAT, Terminal/last, was not found in name map.)
+(Residue 214: WAT, Terminal/last, was not found in name map.)
+(Residue 215: WAT, Terminal/last, was not found in name map.)
+(Residue 216: WAT, Terminal/last, was not found in name map.)
+(Residue 217: WAT, Terminal/last, was not found in name map.)
+(Residue 218: WAT, Terminal/last, was not found in name map.)
+(Residue 219: WAT, Terminal/last, was not found in name map.)
+(Residue 220: WAT, Terminal/last, was not found in name map.)
+(Residue 221: WAT, Terminal/last, was not found in name map.)
+(Residue 222: WAT, Terminal/last, was not found in name map.)
+(Residue 223: WAT, Terminal/last, was not found in name map.)
+(Residue 224: WAT, Terminal/last, was not found in name map.)
+(Residue 225: WAT, Terminal/last, was not found in name map.)
+(Residue 226: WAT, Terminal/last, was not found in name map.)
+(Residue 227: WAT, Terminal/last, was not found in name map.)
+(Residue 228: WAT, Terminal/last, was not found in name map.)
+(Residue 229: WAT, Terminal/last, was not found in name map.)
+(Residue 230: WAT, Terminal/last, was not found in name map.)
+(Residue 231: WAT, Terminal/last, was not found in name map.)
+(Residue 232: WAT, Terminal/last, was not found in name map.)
+(Residue 233: WAT, Terminal/last, was not found in name map.)
+(Residue 234: WAT, Terminal/last, was not found in name map.)
+(Residue 235: WAT, Terminal/last, was not found in name map.)
+(Residue 236: WAT, Terminal/last, was not found in name map.)
+(Residue 237: WAT, Terminal/last, was not found in name map.)
+(Residue 238: WAT, Terminal/last, was not found in name map.)
+(Residue 239: WAT, Terminal/last, was not found in name map.)
+(Residue 240: WAT, Terminal/last, was not found in name map.)
+(Residue 241: WAT, Terminal/last, was not found in name map.)
+(Residue 242: WAT, Terminal/last, was not found in name map.)
+(Residue 243: WAT, Terminal/last, was not found in name map.)
+(Residue 244: WAT, Terminal/last, was not found in name map.)
+(Residue 245: WAT, Terminal/last, was not found in name map.)
+(Residue 246: WAT, Terminal/last, was not found in name map.)
+(Residue 247: WAT, Terminal/last, was not found in name map.)
+(Residue 248: WAT, Terminal/last, was not found in name map.)
+(Residue 249: WAT, Terminal/last, was not found in name map.)
+(Residue 250: WAT, Terminal/last, was not found in name map.)
+(Residue 251: WAT, Terminal/last, was not found in name map.)
+(Residue 252: WAT, Terminal/last, was not found in name map.)
+(Residue 253: WAT, Terminal/last, was not found in name map.)
+(Residue 254: WAT, Terminal/last, was not found in name map.)
+(Residue 255: WAT, Terminal/last, was not found in name map.)
+(Residue 256: WAT, Terminal/last, was not found in name map.)
+(Residue 257: WAT, Terminal/last, was not found in name map.)
+(Residue 258: WAT, Terminal/last, was not found in name map.)
+(Residue 259: WAT, Terminal/last, was not found in name map.)
+(Residue 260: WAT, Terminal/last, was not found in name map.)
+(Residue 261: WAT, Terminal/last, was not found in name map.)
+(Residue 262: WAT, Terminal/last, was not found in name map.)
+(Residue 263: WAT, Terminal/last, was not found in name map.)
+(Residue 264: WAT, Terminal/last, was not found in name map.)
+(Residue 265: WAT, Terminal/last, was not found in name map.)
+(Residue 266: WAT, Terminal/last, was not found in name map.)
+(Residue 267: WAT, Terminal/last, was not found in name map.)
+(Residue 268: WAT, Terminal/last, was not found in name map.)
+(Residue 269: WAT, Terminal/last, was not found in name map.)
+(Residue 270: WAT, Terminal/last, was not found in name map.)
+(Residue 271: WAT, Terminal/last, was not found in name map.)
+(Residue 272: WAT, Terminal/last, was not found in name map.)
+(Residue 273: WAT, Terminal/last, was not found in name map.)
+(Residue 274: WAT, Terminal/last, was not found in name map.)
+(Residue 275: WAT, Terminal/last, was not found in name map.)
+(Residue 276: WAT, Terminal/last, was not found in name map.)
+(Residue 277: WAT, Terminal/last, was not found in name map.)
+(Residue 278: WAT, Terminal/last, was not found in name map.)
+(Residue 279: WAT, Terminal/last, was not found in name map.)
+(Residue 280: WAT, Terminal/last, was not found in name map.)
+(Residue 281: WAT, Terminal/last, was not found in name map.)
+(Residue 282: WAT, Terminal/last, was not found in name map.)
+(Residue 283: WAT, Terminal/last, was not found in name map.)
+(Residue 284: WAT, Terminal/last, was not found in name map.)
+(Residue 285: WAT, Terminal/last, was not found in name map.)
+(Residue 286: WAT, Terminal/last, was not found in name map.)
+(Residue 287: WAT, Terminal/last, was not found in name map.)
+(Residue 288: WAT, Terminal/last, was not found in name map.)
+(Residue 289: WAT, Terminal/last, was not found in name map.)
+(Residue 290: WAT, Terminal/last, was not found in name map.)
+(Residue 291: WAT, Terminal/last, was not found in name map.)
+(Residue 292: WAT, Terminal/last, was not found in name map.)
+(Residue 293: WAT, Terminal/last, was not found in name map.)
+(Residue 294: WAT, Terminal/last, was not found in name map.)
+(Residue 295: WAT, Terminal/last, was not found in name map.)
+(Residue 296: WAT, Terminal/last, was not found in name map.)
+(Residue 297: WAT, Terminal/last, was not found in name map.)
+(Residue 298: WAT, Terminal/last, was not found in name map.)
+(Residue 299: WAT, Terminal/last, was not found in name map.)
+(Residue 300: WAT, Terminal/last, was not found in name map.)
+(Residue 301: WAT, Terminal/last, was not found in name map.)
+(Residue 302: WAT, Terminal/last, was not found in name map.)
+(Residue 303: WAT, Terminal/last, was not found in name map.)
+(Residue 304: WAT, Terminal/last, was not found in name map.)
+(Residue 305: WAT, Terminal/last, was not found in name map.)
+(Residue 306: WAT, Terminal/last, was not found in name map.)
+(Residue 307: WAT, Terminal/last, was not found in name map.)
+(Residue 308: WAT, Terminal/last, was not found in name map.)
+(Residue 309: WAT, Terminal/last, was not found in name map.)
+(Residue 310: WAT, Terminal/last, was not found in name map.)
+(Residue 311: WAT, Terminal/last, was not found in name map.)
+(Residue 312: WAT, Terminal/last, was not found in name map.)
+(Residue 313: WAT, Terminal/last, was not found in name map.)
+(Residue 314: WAT, Terminal/last, was not found in name map.)
+(Residue 315: WAT, Terminal/last, was not found in name map.)
+(Residue 316: WAT, Terminal/last, was not found in name map.)
+(Residue 317: WAT, Terminal/last, was not found in name map.)
+(Residue 318: WAT, Terminal/last, was not found in name map.)
+(Residue 319: WAT, Terminal/last, was not found in name map.)
+(Residue 320: WAT, Terminal/last, was not found in name map.)
+  total atoms in file: 963
+> 
+> setBox pdb2 vdw
+Box dimensions:  43.290200 42.894600 7.500600
+> savepdb pdb2 "wat_confined_savepdb.pdb"
+Writing pdb file: wat_confined_savepdb.pdb
+> saveamberparm pdb2 wat_confined.parm7 wat_confined.rst7
+Checking Unit.
+Building topology.
+Building atom parameters.
+Building bond parameters.
+Building angle parameters.
+Building proper torsion parameters.
+Building improper torsion parameters.
+ total 0 improper torsions applied
+Building H-Bond parameters.
+Incorporating Non-Bonded adjustments.
+Not Marking per-residue atom chain types.
+Marking per-residue atom chain types.
+  (Residues lacking connect0/connect1 - 
+   these don't have chain types marked:
+
+	res	total affected
+
+	WAT	321
+  )
+ (no restraints)
+> quit
+	Quit
