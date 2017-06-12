@@ -10,16 +10,16 @@
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 2
-#define end_nc  3
-#define dt 1
+#define start_nc 51
+#define end_nc  100
+#define dt 4
 #define name_parm7 "density_dis9a5.parm7"
 #define psi 2.4
 #define cavity_cut 0.016
 #define dx 0.2
 #define cut_off 24
 #define max_size 2000
-#define max_life 2000
+#define max_life 10000
 #define rapid_change_constant 5
 
 double density(double x,double y, double x_W, double y_W){
@@ -69,7 +69,9 @@ int calc_cavity_size(int cavity_num,int x,int y,int &last_step_size, int **judge
 }
 int main() {
     std::ofstream outfile;
+    std::ofstream outfile2;
     outfile.open("Rapid_size_change");
+
     typedef std::vector<double>::size_type index;
     std::cout << "program to find the cavities" << "\n" << std::endl;
     int x_points = deviation_x_center * 2 / dx;
@@ -104,13 +106,15 @@ int main() {
 	std::vector<int*> temp_coordinates;
     for (int nc = start_nc; nc != end_nc + 1; ++nc) {
         char name_nc[64];
+        char name_out2[64];
         sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+        sprintf(name_out2,"cavity_size_by_time_%d",nc);
         amber_parm parm_name(name_parm7);
         nctraj nc_data(name_nc);
         printf("nc_file = %d\n", nc);
         int total_frame = nc_data.frames_number();
         std::cout << "total frame: " << total_frame << std::endl;
-
+        outfile2.open(name_out2);
         std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
         std::cout << "total water:  " << O_WAT_id.size() << "\n" << std::endl;
         std::vector<index> O_WAT_IN_C_id_upperlayer;
@@ -261,6 +265,14 @@ int main() {
                         outfile<<total_frame*nc+frame<<std::setw(7)<<active_cavity_index[i]<<std::setw(7)<<pow(dx,2)*abs(cavity_size-cavity_size_by_time[active_cavity_index[i]].back())<<std::setw(7)<<temp_x<<std::setw(7)<<temp_y<<std::endl;
                     }
                     cavity_size_by_time[active_cavity_index[i]].push_back(cavity_size);
+                    if (cavity_size==0){
+                        cavity_quantities_by_life[cavity_size_by_time[active_cavity_index[i]].size()]++;
+                        //for (index j=0;j<cavity_size_by_time[active_cavity_index[i]].size();j++){
+                          //  outfile2<<cavity_size_by_time[active_cavity_index[i]][j]*pow(dx,2)<<std::setw(10);
+                        //}
+                        cavity_size_by_time[active_cavity_index[i]].clear();
+                        outfile2<<frame<<std::endl;
+                    }
                 }
                 active_cavity_index.clear();
                 for (int m=0;m<new_active_index.size();m++){//更新活空穴
@@ -297,9 +309,10 @@ int main() {
 
             }
         }
+        outfile2.close();
     }
     std::ofstream outfile1;
-    std::ofstream outfile2;
+
     /*outfile.open("calc_cavity");
     for (index i=0; i<max_size;i++){
         std::cout<<i*pow(dx,2)<<std::setw(10)<<cavity_quantities_by_size[i]<<std::endl;
@@ -311,19 +324,16 @@ int main() {
             }
         }*/
     outfile1.open("cavity_lifetime");
-    outfile2.open("cavity_size_by_time");
+
     for (index i=0;i<cavity_size_by_time.size();i++){
-        cavity_quantities_by_life[cavity_size_by_time[i].size()]++;
-        for (index j=0;j<cavity_size_by_time[i].size();j++){
-            outfile2<<cavity_size_by_time[i][j]*pow(dx,2)<<std::setw(10);
-        }
-        outfile2<<std::endl;
+
+
     }
     for (index i=0; i<max_life;i++) {
         outfile1 << i << std::setw(10) << cavity_quantities_by_life[i] << std::endl;
     }
     outfile1.close();
-    outfile2.close();
+
     outfile.close();
     return 0;
 }

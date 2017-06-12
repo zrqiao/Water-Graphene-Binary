@@ -17,8 +17,8 @@
 #define deviation_y_center 10
 #define deviation_x_center 10
 #define start_nc 2
-#define end_nc  2
-#define dt 4
+#define end_nc  3
+#define dt 1
 #define name_parm7 "density_dis9a5.parm7"
 #define psi 2.4
 #define cavity_cut 0.016
@@ -75,15 +75,20 @@ int main() {
     int target_jump=0;
     int nt_jump=0;
     std::ifstream infile;
-    std::ifstream infile1;
+    //std::ifstream infile1;
+    std::ofstream outfile;
+    std::ofstream outfile2;
     infile.open("find_jump_coor");
-    infile1.open("Rapid_size_change");
+    outfile.open("cavity_size_change");
+    outfile2.open("size_change_distribution");
+    //infile1.open("Rapid_size_change");
     typedef std::vector<double>::size_type index;
     static std::vector<double> cavity_frames;
-    std::vector<double> density_distribution(50,0);
+    std::vector<double> density_distribution(500,0);
+    std::vector<int> size_change_distribution(3000,0);
     std::cout << "program to derive correlations between jump& cavity" << "\n" << std::endl;
-    int x_points = deviation_x_center * 2 / dx;
-    int y_points = deviation_y_center * 2 / dx;
+    int x_points = deviation_x_center * 2 / dx+1;
+    int y_points = deviation_y_center * 2 / dx+1;
     static std::vector<int> cavity_frame;
     static double **density_matrix = new double *[x_points];
     static std::vector<int*> temp_coordinates;
@@ -140,7 +145,7 @@ int main() {
 
         int frame_r=num[0];
         int nc=frame_r/10000;
-        frame=frame_r-10000*nc;
+        frame=frame_r-10000*nc-dt;
         //std::cout<<frame_r<<std::endl;
         int x_r=floor((num[1]-X_DOWN)/dx);
         int y_r=floor((num[2]-Y_DOWN)/dx);
@@ -169,12 +174,12 @@ int main() {
         for(index i = 0; i != O_WAT_id.size(); ++i)
         {
             O_coor = nc_data.atom_coordinate(frame, O_WAT_id[i]);
-            if( O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN)*7/15 && O_coor[2] > Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
+            if( O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN)*7/15 && O_coor[2] >= Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
             {
                 O_WAT_IN_C_id_lowerlayer.push_back(O_WAT_id[i]);
                 //~ std::cout << O_WAT_id[i] << std::endl;
             }
-            if( O_coor[2] <Z_UP && O_coor[2] >  Z_UP - (Z_UP - Z_DOWN)*7/15  && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
+            if( O_coor[2] <Z_UP && O_coor[2] >=  Z_UP - (Z_UP - Z_DOWN)*7/15  && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
             {
                 O_WAT_IN_C_id_upperlayer.push_back(O_WAT_id[i]);
                 //~ std::cout << O_WAT_id[i] << std::endl;
@@ -193,10 +198,15 @@ int main() {
         for(index m =0; m  != O_WAT_IN_C_id_lowerlayer.size(); ++m) {
             temp_O_X=0;
             temp_O_Y=0;
-            for (int f=frame;f<frame+dt;f++){
+            /*for (int f=frame;f<frame+dt;f++){
                 temp_O_X+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[0]/dt);
                 //std::cout<<temp_O_X<<'\n'<<std::endl;
                 temp_O_Y+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[1]/dt);
+            }*/
+            for (int f=frame;f<frame+1;f++){
+                temp_O_X+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[0]);
+                //std::cout<<temp_O_X<<'\n'<<std::endl;
+                temp_O_Y+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[1]);
             }
             for (int i=0; i<x_points;i++){
                 for(int j=0;j<y_points;j++){
@@ -215,7 +225,7 @@ int main() {
                     judge_matrix[i][j] = 0;
                 }
                 //通过密度矩阵判断是否为空穴
-                //std::cout<<judge_matrix[i][j]<<' ';
+                //std::cout<<density_matrix[i][j]<<' ';
             }
             //std::cout<<std::endl;
         }
@@ -231,102 +241,112 @@ int main() {
             calc_cavity_size(1,x_points-1,j,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
         }*///别忘了改
         //std::cout<<'\n';
-        density_distribution[floor(density_matrix[x_r][y_r]/0.001)]++;
-        if (judge_matrix[x_r][y_r]==1&&calc_matrix[x_r][y_r]==0){
+        std::cout<<frame_r<<' '<<std::endl;
+        if (0<=x_r<x_points&&0<=y_r<y_points) {
+            /*density_distribution[floor(density_matrix[x_r][y_r] / 0.0004)]++;
+            std::cout << density_matrix[x_r][y_r] << std::endl;*/
+            if (judge_matrix[x_r][y_r] == 1 && calc_matrix[x_r][y_r] == 0) {
+                //target_jump++;
+                int cavity_size=0;
+                int cavity_size_1=0;
+                temp_coordinates.clear();
+                calc_cavity_size(1,x_r,y_r,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
+                //计算dt后的空穴变化
+                frame+=dt;
+                O_WAT_IN_C_id_lowerlayer.clear();
+                O_WAT_IN_C_id_upperlayer.clear();
+                for(index i = 0; i != O_WAT_id.size(); ++i)
+                {
+                    O_coor = nc_data.atom_coordinate(frame, O_WAT_id[i]);
+                    if( O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN)*7/15 && O_coor[2] >= Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
+                    {
+                        O_WAT_IN_C_id_lowerlayer.push_back(O_WAT_id[i]);
+                        //~ std::cout << O_WAT_id[i] << std::endl;
+                    }
+                    if( O_coor[2] <Z_UP && O_coor[2] >=  Z_UP - (Z_UP - Z_DOWN)*7/15  && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
+                    {
+                        O_WAT_IN_C_id_upperlayer.push_back(O_WAT_id[i]);
+                        //~ std::cout << O_WAT_id[i] << std::endl;
+                    }
+                }
+                for (int i = 0; i < x_points; i++) {
+                    for (int j = 0; j < y_points; j++) {
+                        density_matrix[i][j] = 0;
+                        judge_matrix[i][j] = 0;
+                        calc_matrix[i][j]=0;
+                        //初始化
+                    }
+                }
+                for(index m =0; m  != O_WAT_IN_C_id_lowerlayer.size(); ++m) {
+                    temp_O_X=0;
+                    temp_O_Y=0;
+                    /*for (int f=frame;f<frame+dt;f++){
+                        temp_O_X+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[0]/dt);
+                        //std::cout<<temp_O_X<<'\n'<<std::endl;
+                        temp_O_Y+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[1]/dt);
+                    }*/
+                    for (int f=frame;f<frame+1;f++){
+                        temp_O_X+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[0]);
+                        //std::cout<<temp_O_X<<'\n'<<std::endl;
+                        temp_O_Y+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[1]);
+                    }
+                    for (int i=0; i<x_points;i++){
+                        for(int j=0;j<y_points;j++){
+                            density_matrix[i][j]+=density(X_DOWN+i*dx,Y_DOWN+j*dx,temp_O_X,temp_O_Y);//计算密度分布函数
+                        }
 
-            target_jump++;
-            /*int cavity_size=0;
-            int cavity_size_1=0;
-            temp_coordinates.clear();
-            calc_cavity_size(1,x_r,y_r,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
-            //计算dt后的空穴变化
-            frame+=dt;
-            O_WAT_IN_C_id_lowerlayer.clear();
-            O_WAT_IN_C_id_upperlayer.clear();
-            for(index i = 0; i != O_WAT_id.size(); ++i)
-            {
-                O_coor = nc_data.atom_coordinate(frame, O_WAT_id[i]);
-                if( O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN)*7/15 && O_coor[2] > Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
-                {
-                    O_WAT_IN_C_id_lowerlayer.push_back(O_WAT_id[i]);
-                    //~ std::cout << O_WAT_id[i] << std::endl;
-                }
-                if( O_coor[2] <Z_UP && O_coor[2] >  Z_UP - (Z_UP - Z_DOWN)*7/15  && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
-                {
-                    O_WAT_IN_C_id_upperlayer.push_back(O_WAT_id[i]);
-                    //~ std::cout << O_WAT_id[i] << std::endl;
-                }
-            }
-            for (int i = 0; i < x_points; i++) {
-                for (int j = 0; j < y_points; j++) {
-                    density_matrix[i][j] = 0;
-                    judge_matrix[i][j] = 0;
-                    calc_matrix[i][j]=0;
-                    //初始化
-                }
-            }
-            for(index m =0; m  != O_WAT_IN_C_id_lowerlayer.size(); ++m) {
-                temp_O_X=0;
-                temp_O_Y=0;
-                for (int f=frame;f<frame+dt;f++){
-                    temp_O_X+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[0]/dt);
-                    //std::cout<<temp_O_X<<'\n'<<std::endl;
-                    temp_O_Y+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[1]/dt);
+
+                    }
+
                 }
                 for (int i=0; i<x_points;i++){
                     for(int j=0;j<y_points;j++){
-                        density_matrix[i][j]+=density(X_DOWN+i*dx,Y_DOWN+j*dx,temp_O_X,temp_O_Y);//计算密度分布函数
+                        if (density_matrix[i][j]<cavity_cut){
+                            judge_matrix[i][j]=1;
+                        }
+                        else {
+                            judge_matrix[i][j] = 0;
+                        }
+                        //通过密度矩阵判断是否为空穴
+                        //std::cout<<judge_matrix[i][j]<<' ';
+                    }
+                    //std::cout<<std::endl;
+                }
+                for (;!temp_coordinates.empty();){
+                    int *temp_xy = temp_coordinates.back();
+                    temp_coordinates.pop_back();
+                    if (judge_matrix[temp_xy[0]][temp_xy[1]] == 1) {
+                        int temp_x = temp_xy[0];
+                        int temp_y = temp_xy[1];
+                        calc_cavity_size(1,temp_x,temp_y,cavity_size_1,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
+
+                        break;
+                        std::cout<<temp_x<<' '<<temp_y<<' ';
                     }
 
-
                 }
-
-            }
-            for (int i=0; i<x_points;i++){
-                for(int j=0;j<y_points;j++){
-                    if (density_matrix[i][j]<cavity_cut){
-                        judge_matrix[i][j]=1;
-                    }
-                    else {
-                        judge_matrix[i][j] = 0;
-                    }
-                    //通过密度矩阵判断是否为空穴
-                    //std::cout<<judge_matrix[i][j]<<' ';
+                double cavity_size_change=(cavity_size_1-cavity_size)*pow(dx,2);
+                outfile<<frame_r<<std::setw(7)<<cavity_size*pow(dx,2)<<
+                         std::setw(7)<<cavity_size_1*pow(dx,2)<<std::setw(7)<<cavity_size_change<<std::endl;
+                size_change_distribution[floor(cavity_size_change / pow(dx,2))]++;
+            } else {
+                nt_jump++;
+                /*std::cout<<nc<<' '<<frame<<' '<<x_r<<' '<<y_r<<std::endl;
+                for (index m=0;m<O_WAT_IN_C_id_lowerlayer.size();m++){
+                    std::cout<<O_WAT_IN_C_id_lowerlayer[m]<<' '<<O_WAT_IN_C_id_lowerlayer[m]+1<<' '<<O_WAT_IN_C_id_lowerlayer[m]+2<<' ';
+                    std::cout<<O_WAT_IN_C_id_upperlayer[m]<<' '<<O_WAT_IN_C_id_upperlayer[m]+1<<' '<<O_WAT_IN_C_id_upperlayer[m]+2<<' ';
                 }
-                //std::cout<<std::endl;
+                std::cout<<std::endl;*/
             }
-            for (;!temp_coordinates.empty();){
-                int *temp_xy = temp_coordinates.back();
-                temp_coordinates.pop_back();
-                if (judge_matrix[temp_xy[0]][temp_xy[1]] == 1) {
-                    int temp_x = temp_xy[0];
-                    int temp_y = temp_xy[1];
-                    calc_cavity_size(1,temp_x,temp_y,cavity_size_1,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
-
-                    break;
-                    std::cout<<temp_x<<' '<<temp_y<<' ';
-                }
-
-            }
-            double cavity_size_change=(cavity_size_1-cavity_size)*pow(dx,2);
-            std::cout<<frame_r<<std::setw(7)<<cavity_size*pow(dx,2)<<
-                     std::setw(7)<<cavity_size_1*pow(dx,2)<<std::setw(7)<<cavity_size_change<<std::endl;*/
-        }
-        else{
-            nt_jump++;
-            /*std::cout<<nc<<' '<<frame<<' '<<x_r<<' '<<y_r<<std::endl;
-            for (index m=0;m<O_WAT_IN_C_id_lowerlayer.size();m++){
-                std::cout<<O_WAT_IN_C_id_lowerlayer[m]<<' '<<O_WAT_IN_C_id_lowerlayer[m]+1<<' '<<O_WAT_IN_C_id_lowerlayer[m]+2<<' ';
-                std::cout<<O_WAT_IN_C_id_upperlayer[m]<<' '<<O_WAT_IN_C_id_upperlayer[m]+1<<' '<<O_WAT_IN_C_id_upperlayer[m]+2<<' ';
-            }
-            std::cout<<std::endl;*/
         }
     }
-    //std::cout<<target_jump<<' '<<nt_jump<<std::endl;
-    for (int i=0;i<50;i++) {
-        std::cout<<i*0.001<<std::setw(5)<<density_distribution[i]<<std::endl;
+    std::cout<<target_jump<<' '<<nt_jump<<std::endl;
+    for (int i=0;i<3000;i++) {
+        outfile2<<i*0.04<<std::setw(7)<<size_change_distribution[i]<<std::endl;
     }
     infile.close();
-    infile1.close();
+    outfile.close();
+    outfile2.close();
+    //infile1.close();
     return 0;
 }

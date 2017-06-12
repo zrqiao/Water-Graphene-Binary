@@ -1,5 +1,5 @@
-#include "amber_netcdf.hpp"
-#include "amber_parm_1.0.hpp"
+#include "enthaply/amber_netcdf.hpp"
+#include "enthaply/amber_parm_1.0.hpp"
 //~ #include <string.h>
 //~ #include <fstream>
 //~ #include <iostream>
@@ -10,8 +10,8 @@
 
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 2
-#define end_nc  29
+#define start_nc 4
+#define end_nc  100
 #define name_parm7 "density_dis9a5.parm7"
 #define jump_time 1000
 #define dt 4
