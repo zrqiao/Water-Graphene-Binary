@@ -7,20 +7,38 @@
 #define deviation_y_center 10
 #define deviation_x_center 10
 #define start_nc 2
-#define end_nc  29
+#define end_nc  13
 #define name_parm7 "density_dis9a5.parm7"
-#define jump_time 1000
+#define jump_time 5000
 #define dt 4
+static double Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN, MID_DOWN, MID_UP;
 //~ #define name_nc "water_ion_graphene_10a5"
 typedef std::vector<double>::size_type index;
+int judge_layer(char name_nc[64], index frame, unsigned long index){
+    double z_coor;
+    int layer=0;
+    nctraj nc_data(name_nc);
+    z_coor = nc_data.atom_coordinate(frame, index)[2];
 
+    if (Z_DOWN <= z_coor&&z_coor < MID_DOWN) {
+        layer= -1;
+
+    } else if (MID_DOWN <=z_coor&& z_coor < MID_UP) {
+        layer= 0;
+
+    } else if (MID_UP <= z_coor&& z_coor <= Z_UP) {
+        layer= 1;
+
+    }
+    return layer;
+}
 
 int main() {
     std::vector<int*> jump_coor;
     std::ofstream outfile;
     outfile.open("jump_time_distribution");
     std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
-
+    std::vector<int> jump_time_distribution(jump_time,0);
 
     long total_wat = 0;
 
@@ -36,7 +54,6 @@ int main() {
         double C_z_coor_average_1, C_z_coor_average_2;
         double C_x_coor_sum = 0, C_y_coor_sum = 0;
         double C_x_coor_center, C_y_coor_center;
-        double Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN, MID_DOWN, MID_UP;
 
 
         std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
@@ -81,24 +98,13 @@ int main() {
             int layer=0;
             double z_coor;
             //std::cout<<"calculate the target atoms"<<"\n" << std::endl;
-
+            index jump_start_frame=0;
             for (index i = 0; i != O_WAT_IN_C_id.size(); i++) {
                 //std::cout<<O_WAT_IN_C_id[i]<<std::endl;
                 for (index frame = frame0; frame!= (frame0+jump_time); frame+=dt) {
 
-                    z_coor = nc_data.atom_coordinate(frame, O_WAT_IN_C_id[i])[2];
+                    layer = judge_layer(name_nc, frame,O_WAT_IN_C_id[i]);
 
-                    if (Z_DOWN <= z_coor&&z_coor < MID_DOWN) {
-                        layer= -1;
-
-                    } else if (MID_DOWN <=z_coor&& z_coor < MID_UP) {
-                        layer= 0;
-
-                    } else if (MID_UP <= z_coor&& z_coor <= Z_UP) {
-                        layer= 1;
-
-                    }
-                    else{}
                     //std::cout<<layer<<' '<<MID_DOWN<<std::endl;
                     if (layer!= 0) { //初始位置不能在中心
                         layerflag_init = layer;
@@ -108,25 +114,20 @@ int main() {
                 }
                 for (index frame = frame0; frame != frame0+jump_time; frame+=dt) {
 
-                    z_coor = nc_data.atom_coordinate(frame, O_WAT_IN_C_id[i])[2];
-                    if (Z_DOWN <= z_coor&& z_coor< MID_DOWN) {
-                        layer= -1;
-                    } else if (MID_DOWN <= z_coor&& z_coor< MID_UP) {
-                        layer= 0;
-                    } else if (MID_UP <= z_coor&& z_coor<= Z_UP) {
-                        layer= 1;
-                    }
-
+                    layer = judge_layer(name_nc, frame,  O_WAT_IN_C_id[i]);
                     if (layer  == -1 && layerflag_init == 1) {
                         O_coor = nc_data.atom_coordinate(frame, O_WAT_IN_C_id[i]);
                         if (O_coor[2] < Z_UP && O_coor[2] > Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN &&
                             O_coor[1] < Y_UP && O_coor[1] > Y_DOWN) {
                             jump_count++;
-                            outfile<<nc*total_frame+frame<<std::setw(10)<<O_coor[0]<<std::setw(10)<<O_coor[1]<<std::endl;
-                            std::cout<<nc*total_frame+frame<<std::setw(10)<<O_coor[0]<<std::setw(10)<<O_coor[1]<<std::endl;
-
+                            jump_time_distribution[frame-jump_start_frame]++;
+                            std::cout<<nc*total_frame+frame<<std::setw(10)<<frame-jump_start_frame<<std::endl;
                         }
 
+                    }
+
+                    if (frame<total_frame-dt&&layer==1&&judge_layer(name_nc,frame+dt,O_WAT_IN_C_id[i])==0){
+                        jump_start_frame=frame;
                     }
                     if (layer*layerflag_init==-1){
                         layerflag_init = layer;
@@ -147,6 +148,9 @@ int main() {
 
 
     }      // nc end
+    for (int i=0;i<jump_time;i++){
+        outfile<<i<<std::setw(10)<<jump_time_distribution[i]<<std::endl;
+    }
     outfile.close();
 
     return 0;
