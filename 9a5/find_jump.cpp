@@ -10,11 +10,11 @@
 
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 4
-#define end_nc  100
+#define start_nc 2
+#define end_nc  12
 #define name_parm7 "density_dis9a5.parm7"
-#define jump_time 1000
-#define dt 4
+#define jump_time 2000
+#define dt 1
 //~ #define name_nc "water_ion_graphene_10a5"
 typedef std::vector<double>::size_type index;
 

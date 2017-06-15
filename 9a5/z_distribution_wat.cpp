@@ -6,10 +6,10 @@
 #define z_axis_modify  2
 #define deviation_y_center 20
 #define deviation_x_center 20
-#define start_nc 0
-#define end_nc  0
+#define start_nc 2
+#define end_nc  13
 #define z_axis_num 100
-#define name_parm7 "density_dis16a5.parm7"
+#define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 
 int main()
@@ -27,7 +27,7 @@ int main()
     double Z_UP,Z_DOWN,Y_UP,Y_DOWN,X_UP,X_DOWN;
 	
 	amber_parm parm_nam(name_parm7);
-	nctraj data_nc("density_dis16a5_0.nc");
+	nctraj data_nc("density_dis9a5_2.nc");
 
 	for( index C_index = 0 ; C_index != 1400 ; ++C_index)
 	{
@@ -58,7 +58,7 @@ int main()
 	for(int nc = start_nc; nc  != end_nc+1; ++nc)
 	{
         char name_nc[64];
-        sprintf(name_nc, "density_dis16a5_%d.nc",nc);
+        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
 		amber_parm parm_name(name_parm7);
         nctraj nc_data(name_nc);
         printf("nc_file = %d\n",nc);
