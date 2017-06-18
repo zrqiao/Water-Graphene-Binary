@@ -6,8 +6,8 @@
 #include "amber_parm_1.0.hpp"
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 16
-#define end_nc  59
+#define start_nc 4
+#define end_nc  70
 #define name_parm7 "density_dis9a5.parm7"
 #define jump_time 5000
 #define dt 4
@@ -36,7 +36,11 @@ int judge_layer(char name_nc[64], index frame, unsigned long index){
 int main() {
     std::vector<int*> jump_coor;
     std::ofstream outfile;
-    outfile.open("jump_time_distribution");
+    outfile.open("jump_time_distribution_down");
+    std::ofstream outfile1;
+    outfile1.open("find_jump_coor_down");
+    std::ofstream outfile2;
+    outfile1.open("transition_path_index_start_finish_down");
     std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
     std::vector<int> jump_time_distribution(jump_time,0);
 
@@ -77,8 +81,8 @@ int main() {
         Y_DOWN = C_y_coor_center - deviation_y_center;
         X_UP = C_x_coor_center + deviation_x_center;
         X_DOWN = C_x_coor_center - deviation_x_center;
-        MID_DOWN = Z_DOWN + (Z_UP - Z_DOWN)*7/15;
-        MID_UP = Z_UP - (Z_UP - Z_DOWN)*7/15;
+        MID_DOWN = Z_DOWN + (Z_UP - Z_DOWN)*6/15;
+        MID_UP = Z_UP - (Z_UP - Z_DOWN)*6/15;
         for (index frame0=0;frame0<total_frame-jump_time+1;frame0+=(jump_time)) {
             int jump_count=0;
             //std::cout<<"frame now: "<<frame0<<std::endl;
@@ -121,6 +125,8 @@ int main() {
                             O_coor[1] < Y_UP && O_coor[1] > Y_DOWN) {
                             jump_count++;
                             jump_time_distribution[frame-jump_start_frame]++;
+                            outfile1<<nc*total_frame+frame<<std::setw(10)<<O_WAT_IN_C_id[i]<<std::setw(10)<<O_coor[0]<<std::setw(10)<<O_coor[1]<<std::endl;
+                            outfile2<<O_WAT_IN_C_id[i]<<std::setw(10)<<nc*total_frame+jump_start_frame<<std::setw(10)<<nc*total_frame+frame<<std::endl;
                             std::cout<<nc*total_frame+frame<<std::setw(10)<<frame-jump_start_frame<<std::endl;
                         }
 
@@ -149,9 +155,11 @@ int main() {
 
     }      // nc end
     for (int i=0;i<jump_time;i++){
-        outfile<<i<<std::setw(10)<<jump_time_distribution[i]<<std::endl;
+        outfile<<i*4<<std::setw(10)<<jump_time_distribution[i]<<std::endl;
     }
+    jump_time_distribution.clear();
     outfile.close();
-
+    outfile1.close();
+    outfile2.close();
     return 0;
 }

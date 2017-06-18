@@ -10,8 +10,8 @@
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 11
-#define end_nc  20
+#define start_nc 2
+#define end_nc  13
 #define diffusion_time 1000
 #define name_parm7 "density_dis9a5.parm7" 
 //~ #define name_nc "water_ion_graphene_10a5"

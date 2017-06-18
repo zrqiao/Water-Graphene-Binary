@@ -10,7 +10,7 @@
 
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 2
+#define start_nc 4
 #define end_nc  12
 #define name_parm7 "density_dis9a5.parm7"
 #define jump_time 2000
@@ -22,7 +22,7 @@ typedef std::vector<double>::size_type index;
 int main() {
     std::vector<int*> jump_coor;
     std::ofstream outfile;
-    outfile.open("find_jump_coor");
+    //outfile.open("find_jump_coor");
 	std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
 
 
@@ -66,6 +66,7 @@ int main() {
         X_DOWN = C_x_coor_center - deviation_x_center;
         MID_DOWN = Z_DOWN + (Z_UP - Z_DOWN)*7/15;
         MID_UP = Z_UP - (Z_UP - Z_DOWN)*7/15;
+        std::cout<<MID_DOWN<<' '<<MID_UP<<std::endl;
         for (index frame0=0;frame0<total_frame-jump_time+1;frame0+=(jump_time)) {
             int jump_count=0;
             //std::cout<<"frame now: "<<frame0<<std::endl;
@@ -126,8 +127,14 @@ int main() {
                         if (O_coor[2] < Z_UP && O_coor[2] > Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN &&
                             O_coor[1] < Y_UP && O_coor[1] > Y_DOWN) {
                             jump_count++;
-                            outfile<<nc*total_frame+frame<<std::setw(10)<<O_coor[0]<<std::setw(10)<<O_coor[1]<<std::endl;
+                            //outfile<<nc*total_frame+frame<<std::setw(10)<<O_coor[0]<<std::setw(10)<<O_coor[1]<<std::endl;
                             std::cout<<nc*total_frame+frame<<std::setw(10)<<O_coor[0]<<std::setw(10)<<O_coor[1]<<std::endl;
+                            /*if (frame>2000){
+                                for (index j= frame-2000; j<frame+2000;j+=dt){
+                                    std::cout<<j<<std::setw(15)<<nc_data.atom_coordinate(j,O_WAT_IN_C_id[i])[2]<<std::endl;
+                                }
+                            }*/
+
 
                         }
 
