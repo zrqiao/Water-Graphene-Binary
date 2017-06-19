@@ -7,22 +7,38 @@
 #define width_transition 1.3
 #define deviation_y_center 26
 #define deviation_x_center 26
-#define start_nc 12
-#define end_nc  16
+#define start_nc 4
+#define end_nc  70
 //~ #define relaxation_time 25
 #define name_parm7 "density_dis9a5.parm7" 
 #define jump_time 5000
+#define max_transition_time 10000
+#define dt 1
 //~ #define name_nc "water_ion_graphene_10a5"
 
 std::vector<std::vector<int>>  pick_frame(int frame_start, int  frame_end, std::vector<double>   XYZ_limit, int o_wat_id);
-std::vector<int>  jump_count(std::vector<std::vector<int>> frame_sta,std::vector<int> count_statistics);
+std::vector<std::vector<int>>  calc_jump(std::vector<std::vector<int>> condensed_frames);
+int calc_distribution(std::vector<std::vector<int>> jump_stat,std::vector<double> &transitiontime_distribution);
 
 int main()
 {
+	std::vector<int*> jump_coor;
+	std::ofstream outfile;
+	outfile.open("jump_time_distribution");
+	std::ofstream outfile1;
+	outfile1.open("find_jump_coor_down");
+	std::ofstream outfile11;
+	outfile1.open("find_jump_coor_up");
+	std::ofstream outfile2;
+	outfile2.open("transition_path_index_start_finish_down");
+	std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
+	std::vector<int> jump_time_distribution(jump_time,0);
 	typedef std::vector<double>::size_type index;
 	std::cout << "program to calculate the jump time distribution"<< "\n"<< std::endl;
 	std::cout << "calculate XYZ_limit" << std::endl;
-	
+	std::vector<double> transitionpath_time_distribution(max_transition_time,0);
+	std::vector<std::vector<int>> jump_stat;
+
     double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
     double C_z_coor_average_1, C_z_coor_average_2;	
 	double C_x_coor_sum = 0, C_y_coor_sum = 0;
@@ -70,8 +86,7 @@ int main()
     std::vector<std::vector<int>> pickframe;		
     std::vector<index> O_WAT_id = parm_nam.id_by_type("OW");	
 	std::cout<< "total water:  " << O_WAT_id.size() <<"\n" <<std::endl;
-	
-    std::vector<int> count_all_water(jump_time,0);
+
 	std::vector<int> wat_jump_count;
 	std::vector<std::vector<int>> wat_jump_distribution;
 	
@@ -85,8 +100,18 @@ int main()
 		for(index j =0; j != pickframe.size(); ++j) std::cout << pickframe[j][0] <<"   "<<pickframe[j][1] << std::endl;
 		if(pickframe.size() != 0)
 		{
-		    count_all_water = jump_count(pickframe,count_all_water);
-		    
+		    jump_stat = calc_jump(pickframe);
+		    for (int j=0;j<jump_stat.size();j++){
+				if (jump_stat[j][3]==-1){
+					outfile1<<jump_stat[j][1]<<std::setw(10)<<O_WAT_id[i]<<std::endl;
+				}
+				if (jump_stat[j][3]==1){
+					outfile11<<jump_stat[j][1]<<std::setw(10)<<O_WAT_id[i]<<std::endl;
+				}
+				outfile2<<O_WAT_id[i]<<std::setw(10)<<jump_stat[j][0]<<std::setw(10)<<jump_stat[j][1]<<std::setw(10)<<jump_stat[j][3]<<std::endl;
+			}
+			calc_distribution(jump_stat,transitionpath_time_distribution);
+			jump_stat.clear();
 		}
     }
 	
@@ -95,20 +120,59 @@ int main()
 	
 	//~ outfile.open("count_jump_time_with_transition");
 
-	for(index i = 2; i < count_all_water.size(); i += 4)
+	for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
 	{
 		//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
-		std::cout <<std::setw(15) <<i+1.5<<std::setw(15)<<(count_all_water[i]+count_all_water[i+1]+count_all_water[i+2]+count_all_water[i+3]) << std::endl;
+		outfile<< i<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
      }
      //~ outfile.close();      
 	//~ return 0;
+	outfile.close();
+	outfile11.clear();
+	outfile1.close();
+	outfile2.close();
+	return 0;
 }
 
 
-
-std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::vector<double>  XYZ_limit, int o_wat_id)
+std::vector<std::vector<int>>  Reduce(std::vector<std::vector<int>> frame_sta)
 {
+	typedef std::vector<double>::size_type index;
+	std::vector<std::vector<int>> condensed_jump_frames;
+	std::vector<int> temp_condensed_frames;//0-layer 1-startframe 2-framelength 3-endframe
+	for(index i=0; i != (frame_sta.size()); ++i)
+	{
+		if (i==0 )	{
+			temp_condensed_frames.push_back(frame_sta[i][1]);
+			temp_condensed_frames.push_back(frame_sta[i][0]);
+			temp_condensed_frames.push_back(1);
+		}
+		else if(frame_sta[i][0]+dt!=frame_sta[i-1][0]+1||frame_sta[i][1]!=frame_sta[i-1][1]){
+			temp_condensed_frames.push_back(frame_sta[i-1][0]);
+			condensed_jump_frames.push_back(temp_condensed_frames);
+
+			temp_condensed_frames.clear();
+			temp_condensed_frames.push_back(frame_sta[i][1]);
+			temp_condensed_frames.push_back(frame_sta[i][0]);
+			temp_condensed_frames.push_back(1);
+		}
+		else if(frame_sta[i][1]==frame_sta[i-1][1]){
+			temp_condensed_frames[2]++;
+		}
+		else if (i==frame_sta.size()-1){
+			temp_condensed_frames.push_back(frame_sta[i][0]);
+			condensed_jump_frames.push_back(temp_condensed_frames);
+			temp_condensed_frames.clear();
+		}
+	}
+
+	return condensed_jump_frames;
+}
+
+
+std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::vector<double>  XYZ_limit, int o_wat_id) {
 	std::vector<std::vector<int>> frame_in_graphene;
+	std::vector<std::vector<int>> condensed_state_frames;
 	int frame_in_total_nc = 0;
     for(int nc = start_nc; nc  != end_nc+1; ++nc)
     {
@@ -131,11 +195,11 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
 				 }
 				 else if(o_coor[2] < ((XYZ_limit[5]+XYZ_limit[4])/2 - width_transition))
 				 {
-					 bbb.push_back(0);
+					 bbb.push_back(-1);
 			     }
 			     else
 			     {
-					 bbb.push_back(55);
+					 bbb.push_back(0);
 				 }
 				 frame_in_graphene.push_back(bbb);
 			 }
@@ -149,85 +213,36 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
 		    //~ frame_in_graphene.erase(frame_in_graphene.begin());
 	    //~ }
     //~ }
-	return frame_in_graphene;
-}	
-
-std::vector<int>  jump_count(std::vector<std::vector<int>> frame_sta,std::vector<int> count_statistics)
-{
-	typedef std::vector<double>::size_type index;
-	int start1 = frame_sta[0][1];
-	int start2 ;
-	int start2_logic=0;
-	int count=1;																																			//~ std::cout <<count<<std::endl;
-    for(index i=0; i != (frame_sta.size()-1); ++i)
-	{
-		if(frame_sta[i+1][0] ==  (frame_sta[i][0]+1))
-		{
-			if(start1 == 55)
-			{
-				start1= frame_sta[i+1][1];
-			} 
-			if(start1 != 55)
-			{
-			    if(start2_logic == 0)
-			    {
-			        if((frame_sta[i+1][1] != start1) && (frame_sta[i+1][1] != 55))
-			        {
-				        start2  =  frame_sta[i+1][1];
-				        start2_logic = 1;
-				        count = 0;
-				        //~ std::cout << "frame: "<<frame_sta[i+1][0]<< " start2_logic: " << start2_logic <<std::endl;
-			        }
-			    }
-			}
-			if(frame_sta[i+1][1] == frame_sta[i][1])
-			{
-				count += 1;			
-				    //~ std::cout << "frame: "<<frame_sta[i+1][0]<< "  count+1 for frame_sta[i+1][1] == frame_sta[i][1]"<<std::endl;
-			}
-			else if(frame_sta[i+1][1] ==  55)
-			{
-				count += 1;
-				    //~ std::cout << "frame: "<<frame_sta[i+1][0]<< "  count+1 for frame_sta[i+1][1] == 55"<<std::endl;																														//~ std::cout <<count<<std::endl;
-			}	
-			else if((start2_logic == 0) && (frame_sta[i+1][1] == start1))
-			{ 
-			    count += 1;
-				    //~ std::cout << "frame: "<<frame_sta[i+1][0]<< "  count+1 for (start2_logic == 0) && (frame_sta[i+1][1] == start1)"<<std::endl;		
-			    
-			}																		
-			else if((start2_logic == 1) && (frame_sta[i+1][1] == start2))
-			{
-				count += 1;			
-				    //~ std::cout << "frame: "<<frame_sta[i+1][0]<< "  count+1 for (start2_logic == 1) && (frame_sta[i+1][1] == start2)"<<std::endl;																																											//~ std::cout <<count<<std::endl;
-			}
-			else
-			{	
-				//~ std::cout<<"statistics: "<<count<<"  next start: "<< frame_sta[i+1][0]<<std::endl;
-				count += 1;
-				count_statistics[count] += 1 ;
-				start2 = frame_sta[i+1][1];
-				count = 1;
-				std::cout << "frame: "<<frame_sta[i+1][0]<< "  count=1 for start1 = 1"<<std::endl;	
-			}
-	    }
-	    else if(frame_sta[i+1][0] !=  (frame_sta[i][0]+1))
-	    {
-			//~ ++i;
-			//~ start = frame_sta[i+1][1];
-			//~ while(((i+2) < (frame_sta.size()-2))   && (frame_sta[i+2][0] == (frame_sta[i+1][0]+1))) ++i;
-			//~ while(((i+1) <  (frame_sta.size()-1))  &&  (frame_sta[i+1][1] == 55) )
-			//~ {
-				//~ ++i;
-			//~ }
-			start1 = frame_sta[i+1][1];
-			start2_logic = 0;
-			count = 1;
-				//~ std::cout << "frame: "<<frame_sta[i+1][0]<< "  count=1 for frame_sta[i+1][0] !=  (frame_sta[i][0]+1)"<<std::endl;																																																												//~ std::cout <<count<<std::endl;
-		}
-		
-    }
-    
-    return count_statistics;
+	condensed_state_frames=Reduce(frame_in_graphene);
+	frame_in_graphene.clear();
+	return condensed_state_frames;
 }
 
+std::vector<std::vector<int>>  calc_jump( std::vector<std::vector<int>> condensed_state_frames){
+	std::vector<std::vector<int>> jump_stat;
+	std::vector<int> temp_jump;// 0-startframe 1-endframe 2-transitiontime 3-direction
+	for (int i=1;i<condensed_state_frames.size()-1;i++){
+		if (condensed_state_frames[i][0]==0){
+			if(condensed_state_frames[i-1][3]+1==condensed_state_frames[i][1]&&condensed_state_frames[i][3]+1==condensed_state_frames[i+1][1]){//必须完全连接
+				if (condensed_state_frames[i-1][0]*condensed_state_frames[i+1][0]==-1){
+					temp_jump.push_back(condensed_state_frames[i][1]);
+					temp_jump.push_back(condensed_state_frames[i][3]);
+					temp_jump.push_back(condensed_state_frames[i][3]-condensed_state_frames[i][1]+1);
+					temp_jump.push_back(condensed_state_frames[i+1][0]);
+					jump_stat.push_back(temp_jump);
+					temp_jump.clear();
+				}
+			}
+		}
+	}
+	return jump_stat;
+}
+int calc_distribution(std::vector<std::vector<int>> jump_stat,std::vector<double> &transitiontime_distribution){
+
+	for (int i=0;i<jump_stat.size();i++){
+		if (jump_stat[i][2]<max_transition_time){
+			transitiontime_distribution[jump_stat[i][2]]++;
+		}
+	}
+	return 0;
+}
