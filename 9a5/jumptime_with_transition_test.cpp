@@ -221,7 +221,7 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
 std::vector<std::vector<int>>  calc_jump( std::vector<std::vector<int>> condensed_state_frames){
 	std::vector<std::vector<int>> jump_stat;
 	std::vector<int> temp_jump;// 0-startframe 1-endframe 2-transitiontime 3-direction
-	for (int i=1;i<condensed_state_frames.size()-1;i++){
+	for (int i=2;i<condensed_state_frames.size()-1;i++){
 		if (condensed_state_frames[i][0]==0){
 			if(condensed_state_frames[i-1][3]+1==condensed_state_frames[i][1]&&condensed_state_frames[i][3]+1==condensed_state_frames[i+1][1]){//必须完全连接
 				if (condensed_state_frames[i-1][0]*condensed_state_frames[i+1][0]==-1){
