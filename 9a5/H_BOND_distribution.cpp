@@ -11,8 +11,8 @@
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 4
-#define end_nc  70
+#define start_nc 51
+#define end_nc  100
 #define select_boundary 3.55
 #define hbond_cutoff_up 4.0
 #define hbond_cutoff_down 2.0
@@ -20,8 +20,8 @@
 #define hbond_cutoff_angle_down 120.0
 #define bond_length_number 20
 #define bond_angle_number 60
-#define z_points    50
-#define max_sampling 20000
+#define z_points    160
+#define max_sampling 40000
 #define dt 10
 #define name_parm7 "density_dis9a5.parm7" 
 //~ #define name_nc "water_ion_graphene_10a5"
@@ -105,8 +105,10 @@ int main()
 		       //~ std::cout << "size: " << O_WAT_IN_C_id.size() << " " << select_wat_id.size() << std::endl;
 		      for(index i =0; i != O_WAT_IN_C_id.size(); ++i)
 		      {
-                  if (total_wat_z[(nc_data.atom_coordinate(frame,O_WAT_IN_C_id[i])[2]-Z_DOWN)/((Z_UP-Z_DOWN)/z_points)]<max_sampling) {
-                      ++total_wat_z[(nc_data.atom_coordinate(frame, O_WAT_IN_C_id[i])[2]-Z_DOWN)/((Z_UP - Z_DOWN) / z_points)];
+                  if (total_wat_z[int(floor((nc_data.atom_coordinate(frame, O_WAT_IN_C_id[i])[2]-Z_DOWN) /
+                                            ((Z_UP - Z_DOWN) / z_points)))]<max_sampling) {
+                      ++total_wat_z[int(floor((nc_data.atom_coordinate(frame, O_WAT_IN_C_id[i])[2]-Z_DOWN) /
+                                              ((Z_UP - Z_DOWN) / z_points)))];
 
                       for (index j = 0; j != select_wat_id.size(); ++j) {
                           if (O_WAT_IN_C_id[i] != select_wat_id[j]) {
@@ -148,21 +150,23 @@ int main()
                   }
 			  }
 
-	     }       // frame end     
+	     }       // frame end
+        std::ofstream outfile;
+        outfile.open("bond_distribution.dat");
+        for(int i =0; i !=z_points; ++i)
+        {
+            for(int j=0; j !=bond_length_number; ++j)
+            {
+                outfile<<std::setw(12)<<bond_distribution[i][j]/total_wat_z[i];
+            }
+            outfile<<std::endl;
+        }
+        std::cout<<"total wat number: "<< total_wat<<std::endl;
+        outfile.close();
+        return 0;
 	}      // nc end
     //~ std::cout << total_hbond<<"  "<<total_wat<<std::endl;
-    std::ofstream outfile;
-    outfile.open("bond_distribution.dat");
-    for(int i =0; i !=z_points; ++i)
-    {
-		for(int j=0; j !=bond_length_number; ++j)
-		{
-			outfile<<std::setw(12)<<bond_distribution[i][j]/total_wat_z[i];
-		}
-		outfile<<std::endl;
-	} 
-    std::cout<<"total wat number: "<< total_wat<<std::endl;
-	return 0;
+
 }
 
 
