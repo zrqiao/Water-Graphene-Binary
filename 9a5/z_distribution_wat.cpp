@@ -6,9 +6,9 @@
 #define z_axis_modify  2
 #define deviation_y_center 20
 #define deviation_x_center 20
-#define start_nc 2
-#define end_nc  13
-#define z_axis_num 100
+#define start_nc 64
+#define end_nc  100
+#define z_axis_num 160
 #define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 
@@ -80,22 +80,23 @@ int main()
 			}
 		   frame += 10;
 	   }
-    }
+
+		std::ofstream outfile;
+
+
+		outfile.open("z_axis_distribution");
+
+		for(index i = 0; i != z_axis_dis.size(); ++i)
+		{
+			outfile <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i] << std::endl;
+			std::cout <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i] << std::endl;
+		}
+		outfile.close();
+	}
 	
 	
 
-	
-	std::ofstream outfile;
 
-	
-	outfile.open("z_axis_distribution");
-
-	for(index i = 0; i != z_axis_dis.size(); ++i)
-	{
-		outfile <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i] << std::endl;
-		std::cout <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i] << std::endl;
-     }
-     outfile.close();      
 	return 0;
 }
 

@@ -10,16 +10,18 @@
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 51
+#define start_nc 49
 #define end_nc  100
-#define dt 4
+#define dt 1
+#define relaxation_time 25
 #define name_parm7 "density_dis9a5.parm7"
 #define psi 2.4
-#define cavity_cut 0.016
+#define cavity_cut 0.006
 #define dx 0.2
 #define cut_off 24
 #define max_size 2000
 #define max_life 10000
+#define max_circumference 400
 #define rapid_change_constant 5
 
 double density(double x,double y, double x_W, double y_W){
@@ -27,17 +29,24 @@ double density(double x,double y, double x_W, double y_W){
     return (1/(2*M_PI*pow(psi,2)))*exp(-2*(pow((r/psi),2)));
 }
 
-int calc_cavity_size(int cavity_num,int x,int y,int &last_step_size, int **judge_matrix, int **calc_matrix,std::vector<int*> &temp_cavity_coordinate,int x_points, int y_points){
+int calc_cavity_size(int &circumference,int x,int y,int &last_step_size, int **judge_matrix, int **calc_matrix,std::vector<int*> &temp_cavity_coordinate,int x_points, int y_points){
     int *coordinate_vector=new int [2];
 	if (calc_matrix[x][y]==0){
+        if (x==0 ||x==x_points-1||y==0||y==y_points-1){
+            circumference++;
+        } else{
+            if (!(judge_matrix[x-1][y]==1&judge_matrix[x+1][y]==1&judge_matrix[x][y-1]==1&judge_matrix[x][y+1]==1)){
+                circumference++;
+            }
+        }
         last_step_size+=1;
-        calc_matrix[x][y]=cavity_num+1;
+        calc_matrix[x][y]=1;
         if (x-1>=0){
             if (judge_matrix[x-1][y]==1 && calc_matrix[x-1][y]==0){
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
 				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(cavity_num,x-1,y,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(circumference,x-1,y,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
             }
         }
         if (y-1>=0){
@@ -45,7 +54,7 @@ int calc_cavity_size(int cavity_num,int x,int y,int &last_step_size, int **judge
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
 				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(cavity_num,x,y-1,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(circumference,x,y-1,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
             }
         }
         if (x+1<x_points){
@@ -53,7 +62,7 @@ int calc_cavity_size(int cavity_num,int x,int y,int &last_step_size, int **judge
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
 				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(cavity_num,x+1,y,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(circumference,x+1,y,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
             }
         }
         if (y+1<y_points){
@@ -61,7 +70,7 @@ int calc_cavity_size(int cavity_num,int x,int y,int &last_step_size, int **judge
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
 				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(cavity_num,x,y+1,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(circumference,x,y+1,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
             }
         }
     }
@@ -78,6 +87,7 @@ int main() {
     int y_points = deviation_y_center * 2 / dx;
 	double max_cavity_index=0;
     std::vector<double> cavity_quantities_by_size(max_size,0);
+    std::vector<double> cavity_quantities_by_circumference(max_circumference,0);
     std::vector<double> cavity_quantities_by_life(max_life,0);
 
 	std::vector<int> active_cavity_index;
@@ -128,7 +138,7 @@ int main() {
 
         double Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN;
 
-        for (int frame = 0; frame != total_frame; frame+=dt)
+        for (int frame = 0; frame < total_frame; frame+=relaxation_time)
             //~ for(int frame =0; frame != 2       ;++frame)
         {
             if ((frame % 1000) == 0) {
@@ -166,41 +176,44 @@ int main() {
                     for (int j = 0; j < y_points; j++) {
                         density_matrix[i][j] = 0;
                         judge_matrix[i][j] = 0;
-                        calc_matrix[i][j]=0;
+                        calc_matrix[i][j] = 0;
                         //初始化
                     }
                 }
-
-                for(index i = 0; i != O_WAT_id.size(); ++i)
-                {
-                    O_coor = nc_data.atom_coordinate(frame, O_WAT_id[i]);
-                    if( O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN)*7/15 && O_coor[2] > Z_DOWN && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
-                    {
-                        O_WAT_IN_C_id_lowerlayer.push_back(O_WAT_id[i]);
-                        //~ std::cout << O_WAT_id[i] << std::endl;
-                    }
-                    if( O_coor[2] <Z_UP && O_coor[2] >  Z_UP - (Z_UP - Z_DOWN)*7/15  && O_coor[0] < X_UP && O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
-                    {
-                        O_WAT_IN_C_id_upperlayer.push_back(O_WAT_id[i]);
-                        //~ std::cout << O_WAT_id[i] << std::endl;
-                    }
-                }
-                    double temp_O_X; double temp_O_Y;
-                for(index m =0; m  != O_WAT_IN_C_id_lowerlayer.size(); ++m) {
-                    temp_O_X=0;
-                    temp_O_Y=0;
-                    for (int f=frame;f<frame+dt;f++){
-                        temp_O_X+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[0]/dt);
-                        //std::cout<<temp_O_X<<'\n'<<std::endl;
-                        temp_O_Y+=(nc_data.atom_coordinate(frame,O_WAT_IN_C_id_lowerlayer[m])[1]/dt);
-                    }
-                    for (int i=0; i<x_points;i++){
-                        for(int j=0;j<y_points;j++){
-
-                            density_matrix[i][j]+=density(X_DOWN+i*dx,Y_DOWN+j*dx,temp_O_X,temp_O_Y);//计算密度分布函数
+                for (int frame_t=frame;frame_t<frame+relaxation_time;frame_t+=dt) {
+                    for (index i = 0; i != O_WAT_id.size(); ++i) {
+                        O_coor = nc_data.atom_coordinate(frame, O_WAT_id[i]);
+                        if (O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN) * 7 / 15 && O_coor[2] > Z_DOWN && O_coor[0] < X_UP &&
+                            O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
+                        {
+                            O_WAT_IN_C_id_lowerlayer.push_back(O_WAT_id[i]);
+                            //~ std::cout << O_WAT_id[i] << std::endl;
                         }
+                        if (O_coor[2] < Z_UP && O_coor[2] > Z_UP - (Z_UP - Z_DOWN) * 7 / 15 && O_coor[0] < X_UP &&
+                            O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
+                        {
+                            O_WAT_IN_C_id_upperlayer.push_back(O_WAT_id[i]);
+                            //~ std::cout << O_WAT_id[i] << std::endl;
+                        }
+                    }
+                    double temp_O_X;
+                    double temp_O_Y;
+                    for (index m = 0; m != O_WAT_IN_C_id_lowerlayer.size(); ++m) {
+                        temp_O_X = 0;
+                        temp_O_Y = 0;
+                        for (int f = frame_t; f < frame_t + dt; f++) {
+                            temp_O_X += (nc_data.atom_coordinate(f, O_WAT_IN_C_id_lowerlayer[m])[0] / dt);
+                            //std::cout<<temp_O_X<<'\n'<<std::endl;
+                            temp_O_Y += (nc_data.atom_coordinate(f, O_WAT_IN_C_id_lowerlayer[m])[1] / dt);
+                        }
+                        for (int i = 0; i < x_points; i++) {
+                            for (int j = 0; j < y_points; j++) {
+                                density_matrix[i][j] += density(X_DOWN + i * dx, Y_DOWN + j * dx, temp_O_X,
+                                                                temp_O_Y)*dt/relaxation_time;//计算密度分布函数
+                            }
 
 
+                        }
                     }
                 }
                 std::cout<<"step: "<<frame/dt<<'\n'<<std::endl;
@@ -214,14 +227,14 @@ int main() {
                         }
                        //通过密度矩阵判断是否为空穴
                         //std::cout<<judge_matrix[i][j]<<' ';
-                        sum_matrix[i][j]+=judge_matrix[i][j];
+                        //sum_matrix[i][j]+=judge_matrix[i][j];
                     }
                     //std::cout<<std::endl;
                 }
 
                 int large_cavity_num=0;
-                int cavity_size; 
-                for (int i=0; i<x_points;i++){//挖掉边界
+                int cavity_size, cavity_circ;
+                /*for (int i=0; i<x_points;i++){//挖掉边界
                     cavity_size=0;
                     calc_cavity_size(1,i,0,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
                     calc_cavity_size(1,i,y_points-1,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
@@ -230,13 +243,12 @@ int main() {
                     cavity_size=0;
                     calc_cavity_size(1,0,j,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
                     calc_cavity_size(1,x_points-1,j,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);
-                }
+                }*/
 				temp_coordinates.clear();
                 bool is_active= false;
-
                 new_active_index.clear();
                 //std::cout<<last_step_cavity_coordinate_by_index.size()<<std::endl;
-                for (int i=0;i<active_cavity_index.size();i++){//计算空穴覆盖情况
+                /*for (int i=0;i<active_cavity_index.size();i++){//计算空穴覆盖情况
                     is_active=false;
 
                     //std::cout<<active_cavity_index[i]<<' '<<last_step_cavity_coordinate_by_index[active_cavity_index[i]].size()<<std::endl;
@@ -278,21 +290,24 @@ int main() {
                 for (int m=0;m<new_active_index.size();m++){//更新活空穴
                     active_cavity_index.push_back(new_active_index[m]);
                 }
+                 */
                 for (int i=0; i<x_points;i++){//深搜统计新的空穴大小和数目
                     for(int j=0;j<y_points;j++){
                         if (judge_matrix[i][j]==1&& calc_matrix[i][j]==0){
                             cavity_size=0;
+                            cavity_circ=0;
                             temp_coordinates.clear();
-                            calc_cavity_size(cavity_num,i,j,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);//
+                            calc_cavity_size(cavity_circ,i,j,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);//
                             //temp_coordinates.clear();//完全忽略面积信息，内存占用极大时使用
                             //std::cout<<temp_coordinates.size()<<std::endl;
-                            last_step_cavity_coordinate_by_index.push_back(temp_coordinates);
+                            //last_step_cavity_coordinate_by_index.push_back(temp_coordinates);
                             std::vector<int> init_cavity_size_vector;
-                            init_cavity_size_vector.push_back(cavity_size);
-                            cavity_size_by_time.push_back(init_cavity_size_vector);
-                            cavity_frame.push_back(frame);
-                            active_cavity_index.push_back(cavity_num);
+                            //init_cavity_size_vector.push_back(cavity_size);
+                            //cavity_size_by_time.push_back(init_cavity_size_vector);
+                            //cavity_frame.push_back(frame);
+                            //active_cavity_index.push_back(cavity_num);
                             cavity_quantities_by_size[cavity_size]++;
+                            cavity_quantities_by_circumference[cavity_circ]++;
                             cavity_num++;
                             if (cavity_size*dx*dx>=cut_off){
                                 large_cavity_num++;
@@ -309,9 +324,33 @@ int main() {
 
             }
         }
+        std::ofstream outfile1;
+        char out_name[64];
+        sprintf(out_name,"cavity_size_density_relaxation_%dfs.dat",relaxation_time*4);
+        outfile1.open(out_name);
+        for (index i=0;i<cavity_quantities_by_size.size();i++){
+            std::cout<<i*pow(dx,2)<<std::setw(15)<<cavity_quantities_by_size[i]/((nc-start_nc+1)*10000/relaxation_time)<<std::endl;
+            outfile1<<i*pow(dx,2)<<std::setw(15)<<cavity_quantities_by_size[i]/((nc-start_nc+1)*10000/relaxation_time)<<std::endl;
+        }
+        for (index i=0; i<max_life;i++) {
+
+        }
+        outfile1.close();
+        std::ofstream outfile3;
+        char out3_name[64];
+        sprintf(out3_name,"cavity_circumference_density_relaxation_%dfs.dat",relaxation_time*4);
+        outfile3.open(out3_name);
+        for (index i=0;i<max_circumference;i++){
+            std::cout<<i*dx<<std::setw(15)<<cavity_quantities_by_circumference[i]/((nc-start_nc+1)*10000/relaxation_time)<<std::endl;
+            outfile3<<i*dx<<std::setw(15)<<cavity_quantities_by_circumference[i]/((nc-start_nc+1)*10000/relaxation_time)<<std::endl;
+        }
+        for (index i=0; i<max_life;i++) {
+
+        }
+        outfile3.close();
         outfile2.close();
     }
-    std::ofstream outfile1;
+
 
     /*outfile.open("calc_cavity");
     for (index i=0; i<max_size;i++){
@@ -323,16 +362,7 @@ int main() {
                 std::cout << i * dx << std::setw(10) << j * dx << std::setw(10) << sum_matrix[i][j] << std::endl;
             }
         }*/
-    outfile1.open("cavity_lifetime");
 
-    for (index i=0;i<cavity_size_by_time.size();i++){
-
-
-    }
-    for (index i=0; i<max_life;i++) {
-        outfile1 << i << std::setw(10) << cavity_quantities_by_life[i] << std::endl;
-    }
-    outfile1.close();
 
     outfile.close();
     return 0;

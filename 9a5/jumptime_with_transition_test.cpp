@@ -4,16 +4,16 @@
 
 
 //~ #define z_axis_modify  2
-#define width_transition 1.3
+#define width_transition 1.2
 #define deviation_y_center 26
 #define deviation_x_center 26
-#define start_nc 4
-#define end_nc  70
+#define start_nc 37
+#define end_nc  100
 //~ #define relaxation_time 25
 #define name_parm7 "density_dis9a5.parm7" 
 #define jump_time 5000
 #define max_transition_time 10000
-#define dt 1
+#define dt 2
 //~ #define name_nc "water_ion_graphene_10a5"
 
 std::vector<std::vector<int>>  pick_frame(int frame_start, int  frame_end, std::vector<double>   XYZ_limit, int o_wat_id);
@@ -28,7 +28,7 @@ int main()
 	std::ofstream outfile1;
 	outfile1.open("find_jump_coor_down");
 	std::ofstream outfile11;
-	outfile1.open("find_jump_coor_up");
+	outfile11.open("find_jump_coor_up");
 	std::ofstream outfile2;
 	outfile2.open("transition_path_index_start_finish_down");
 	std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
@@ -97,7 +97,7 @@ int main()
 		std::cout << "water calculate and id: " << std::setw(8)<< i+1 <<std::setw(8)<<O_WAT_id[i]<< std::endl;
 		pickframe = pick_frame(start_nc,end_nc,xyz,O_WAT_id[i]);
 		//~ std::cout<<"frame size: " << pickframe.size()<<std::endl;
-		for(index j =0; j != pickframe.size(); ++j) std::cout << pickframe[j][0] <<"   "<<pickframe[j][1] << std::endl;
+		for(index j =0; j != pickframe.size(); ++j) std::cout << pickframe[j][0] <<"   "<<pickframe[j][1] <<"   "<<pickframe[j][2] <<"   "<<pickframe[j][3] << std::endl;
 		if(pickframe.size() != 0)
 		{
 		    jump_stat = calc_jump(pickframe);
@@ -123,7 +123,7 @@ int main()
 	for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
 	{
 		//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
-		outfile<< i<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
+		outfile<< i*dt<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
      }
      //~ outfile.close();      
 	//~ return 0;
@@ -145,19 +145,19 @@ std::vector<std::vector<int>>  Reduce(std::vector<std::vector<int>> frame_sta)
 		if (i==0 )	{
 			temp_condensed_frames.push_back(frame_sta[i][1]);
 			temp_condensed_frames.push_back(frame_sta[i][0]);
-			temp_condensed_frames.push_back(1);
+			temp_condensed_frames.push_back(dt);
 		}
-		else if(frame_sta[i][0]+dt!=frame_sta[i-1][0]+1||frame_sta[i][1]!=frame_sta[i-1][1]){
+		else if(frame_sta[i][0]!=frame_sta[i-1][0]+dt||frame_sta[i][1]!=frame_sta[i-1][1]){
 			temp_condensed_frames.push_back(frame_sta[i-1][0]);
 			condensed_jump_frames.push_back(temp_condensed_frames);
 
 			temp_condensed_frames.clear();
 			temp_condensed_frames.push_back(frame_sta[i][1]);
 			temp_condensed_frames.push_back(frame_sta[i][0]);
-			temp_condensed_frames.push_back(1);
+			temp_condensed_frames.push_back(dt);
 		}
 		else if(frame_sta[i][1]==frame_sta[i-1][1]){
-			temp_condensed_frames[2]++;
+			temp_condensed_frames[2]+=dt;
 		}
 		else if (i==frame_sta.size()-1){
 			temp_condensed_frames.push_back(frame_sta[i][0]);
@@ -173,7 +173,7 @@ std::vector<std::vector<int>>  Reduce(std::vector<std::vector<int>> frame_sta)
 std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::vector<double>  XYZ_limit, int o_wat_id) {
 	std::vector<std::vector<int>> frame_in_graphene;
 	std::vector<std::vector<int>> condensed_state_frames;
-	int frame_in_total_nc = 0;
+	int frame_in_total_nc = start_nc*10000;
     for(int nc = start_nc; nc  != end_nc+1; ++nc)
     {
         char name_nc[64];
@@ -182,7 +182,7 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
         nctraj nc_data(name_nc);
         std::vector<double>  o_coor;
         int frame_this_nc = nc_data.frames_number();
-        for(int frame =0; frame != frame_this_nc; ++frame)
+        for(int frame =0; frame != frame_this_nc; frame+=dt)
         {
 			o_coor = nc_data.atom_coordinate(frame, o_wat_id);
 			if( o_coor[2] < XYZ_limit[5] && o_coor[2] > XYZ_limit[4] && o_coor[1] < XYZ_limit[3] && o_coor[1] > XYZ_limit[2] && o_coor[0] < XYZ_limit[1] && o_coor[0] > XYZ_limit[0]) 
@@ -223,11 +223,11 @@ std::vector<std::vector<int>>  calc_jump( std::vector<std::vector<int>> condense
 	std::vector<int> temp_jump;// 0-startframe 1-endframe 2-transitiontime 3-direction
 	for (int i=2;i<condensed_state_frames.size()-1;i++){
 		if (condensed_state_frames[i][0]==0){
-			if(condensed_state_frames[i-1][3]+1==condensed_state_frames[i][1]&&condensed_state_frames[i][3]+1==condensed_state_frames[i+1][1]){//必须完全连接
+			if(condensed_state_frames[i-1][3]+dt==condensed_state_frames[i][1]&&condensed_state_frames[i][3]+dt==condensed_state_frames[i+1][1]){//必须完全连接
 				if (condensed_state_frames[i-1][0]*condensed_state_frames[i+1][0]==-1){
 					temp_jump.push_back(condensed_state_frames[i][1]);
 					temp_jump.push_back(condensed_state_frames[i][3]);
-					temp_jump.push_back(condensed_state_frames[i][3]-condensed_state_frames[i][1]+1);
+					temp_jump.push_back(condensed_state_frames[i][2]);
 					temp_jump.push_back(condensed_state_frames[i+1][0]);
 					jump_stat.push_back(temp_jump);
 					temp_jump.clear();
@@ -241,7 +241,7 @@ int calc_distribution(std::vector<std::vector<int>> jump_stat,std::vector<double
 
 	for (int i=0;i<jump_stat.size();i++){
 		if (jump_stat[i][2]<max_transition_time){
-			transitiontime_distribution[jump_stat[i][2]]++;
+			transitiontime_distribution[jump_stat[i][2]/dt]++;
 		}
 	}
 	return 0;

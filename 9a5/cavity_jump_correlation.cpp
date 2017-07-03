@@ -146,7 +146,7 @@ int main() {
         infile.open("find_jump_coor_down");
         while (!infile.fail()) {
             double num[4];
-            infile >> num[0] >> num[1] >> num[2]>>num[3];
+            infile >> num[0] >> num[1] ;
 
             int frame_r = num[0];
             int nc = frame_r / 10000;
@@ -157,15 +157,15 @@ int main() {
             //std::cout<<frame_r<<std::endl;
 
 
-                int x_r = floor((num[2] - X_DOWN) / dx);
-                int y_r = floor((num[3] - Y_DOWN) / dx);
+
                 sprintf(name_nc, "density_dis9a5_%d.nc", nc);
                 amber_parm parm_name(name_parm7);
                 nctraj nc_data(name_nc);
                 std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
                 std::vector<index> O_WAT_IN_C_id_upperlayer;
                 std::vector<index> O_WAT_IN_C_id_lowerlayer;
-
+                int x_r = int(floor((nc_data.atom_coordinate(frame,num[1])[0] - X_DOWN) / dx));
+                int y_r = int(floor((nc_data.atom_coordinate(frame,num[1])[1]  - Y_DOWN) / dx));
 
                 double temp_O_X;
                 double temp_O_Y;
