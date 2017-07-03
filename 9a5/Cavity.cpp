@@ -12,9 +12,9 @@
 #define deviation_x_center 10
 #define start_nc 49
 #define end_nc  100
-#define dt 1
-#define relaxation_time 25
-#define name_parm7 "density_dis9a5.parm7"
+#define dt 4
+#define relaxation_time 20
+#define name_parm7 "nc/density_dis9a5.parm7"
 #define psi 2.4
 #define cavity_cut 0.006
 #define dx 0.2
@@ -79,7 +79,7 @@ int calc_cavity_size(int &circumference,int x,int y,int &last_step_size, int **j
 int main() {
     std::ofstream outfile;
     std::ofstream outfile2;
-    outfile.open("Rapid_size_change");
+    //outfile.open("Rapid_size_change");
 
     typedef std::vector<double>::size_type index;
     std::cout << "program to find the cavities" << "\n" << std::endl;
@@ -117,7 +117,7 @@ int main() {
     for (int nc = start_nc; nc != end_nc + 1; ++nc) {
         char name_nc[64];
         char name_out2[64];
-        sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+        sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         sprintf(name_out2,"cavity_size_by_time_%d",nc);
         amber_parm parm_name(name_parm7);
         nctraj nc_data(name_nc);
@@ -326,7 +326,7 @@ int main() {
         }
         std::ofstream outfile1;
         char out_name[64];
-        sprintf(out_name,"cavity_size_density_relaxation_%dfs.dat",relaxation_time*4);
+        sprintf(out_name,"cavity_distribution/cavity_size_density_relaxation_%dfs.dat",relaxation_time*4);
         outfile1.open(out_name);
         for (index i=0;i<cavity_quantities_by_size.size();i++){
             std::cout<<i*pow(dx,2)<<std::setw(15)<<cavity_quantities_by_size[i]/((nc-start_nc+1)*10000/relaxation_time)<<std::endl;
@@ -338,7 +338,7 @@ int main() {
         outfile1.close();
         std::ofstream outfile3;
         char out3_name[64];
-        sprintf(out3_name,"cavity_circumference_density_relaxation_%dfs.dat",relaxation_time*4);
+        sprintf(out3_name,"cavity_distribution/cavity_circumference_density_relaxation_%dfs.dat",relaxation_time*4);
         outfile3.open(out3_name);
         for (index i=0;i<max_circumference;i++){
             std::cout<<i*dx<<std::setw(15)<<cavity_quantities_by_circumference[i]/((nc-start_nc+1)*10000/relaxation_time)<<std::endl;

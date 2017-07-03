@@ -1,0 +1,19 @@
+#!/bin/bash  
+
+APP_NAME=scinormal
+
+NP_PER_NODE=16
+
+MY_MPI_TYPE=openmpi
+
+MY_MPI_HOME=/share/software/openmpi/icc-13.0.1/openmpi-1.6.3-icc
+
+LD_LIBRARY_PATH=/share/software/gcc-6.1.0/lib64:$LD_LIBRARY_PATH
+
+export LD_LIBRARY_PATH
+
+NP=16
+
+RUN="./qzr1"
+
+

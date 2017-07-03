@@ -23,6 +23,7 @@
 #define z_points    160
 #define max_sampling 160000
 #define dt 4
+#define frame_extend 100
 #define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 typedef std::vector<double>::size_type index;
@@ -60,7 +61,7 @@ int main() {
     index frame=0;
     index frame0=0;
     char name_nc[64];
-    sprintf(name_nc, "density_dis9a5_%d.nc", start_nc);
+    sprintf(name_nc, "nc/density_dis9a5_%d.nc", start_nc);
     amber_parm parm_name(name_parm7);
     nctraj nc_data(name_nc);
     std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
@@ -71,12 +72,12 @@ int main() {
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
-        int frame_r_st = num[1];
-        int frame_r_ed = num[2];
+        int frame_r_st = num[1]-frame_extend;
+        int frame_r_ed = num[2]+frame_extend;
         int Target_ID = num[0];
 
         int nc = frame_r_st / 10000;
-        sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+        sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
         double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
         double C_z_coor_average_1, C_z_coor_average_2;
@@ -103,17 +104,17 @@ int main() {
         X_DOWN = C_x_coor_center - deviation_x_center;
         std::cout<<Target_ID<<std::setw(10)<<frame_r_st<<std::endl;
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
-        for (int frame_r=frame_r_st;frame_r<frame_r_ed;frame_r+=dt) {
+        for (int frame_r=frame_r_st;frame_r<frame_r_ed&&frame_r<1000000;frame_r+=dt) {
             int nc = start_nc;
             int total_frame = start_nc * 10000;
             while (total_frame <= frame_r) {
-                sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+                sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
                 nctraj nc_data(name_nc);
                 total_frame += nc_data.frames_number();
                 nc++;
             }
             nc--;
-            sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+            sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
             nctraj nc_data(name_nc);
             index frame = frame_r - total_frame + nc_data.frames_number();
             select_wat_id.clear();
@@ -155,7 +156,7 @@ int main() {
         }
         std::cout<<std::endl;
         std::ofstream outfile;
-        outfile.open("H_Bond_with_transition_O");
+        outfile.open("H-Bond/H_Bond_with_transition_O");
         for(int i =0; i !=z_points; ++i)
         {
             for(int j=0; j !=z_points; ++j)
@@ -167,7 +168,7 @@ int main() {
 
         outfile.close();
             std::ofstream outfile1;
-            outfile1.open("H_Bond_with_transition_H");
+            outfile1.open("H-Bond/H_Bond_with_transition_H");
             for(int i =0; i !=z_points; ++i)
             {
                 for(int j=0; j !=z_points; ++j)
