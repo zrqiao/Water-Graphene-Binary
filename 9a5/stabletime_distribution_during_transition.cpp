@@ -37,11 +37,17 @@ double newstate_refresh(std::vector<index> &state_vector,int frame, double newst
 }
 
 int main() {
-    std::vector<double> stable_time_distribution(z_points,0);
-    std::vector<double> total_wat(z_points,0);
-    std::vector<double*> last_stablestate(z_points,new double[3]);
+    static double** stable_time_distribution=new double* [z_points];
+    for (int i=0;i<z_points;i++){
+        stable_time_distribution[i]=new double[max_time];
+    }
+    static std::vector<double> total_wat(z_points,0);
+    static double** last_stablestate=new double* [z_points];
     for (int i=0; i<z_points;i++){
-        last_stablestate[i][0]=last_stablestate[i][1]=last_stablestate[i][2]=0;
+        last_stablestate[i]=new double[3];
+        last_stablestate[i][0]=0;
+        last_stablestate[i][1]=0;
+        last_stablestate[i][2]=0;
     }
     std::ifstream infile;
     static std::vector<double> cavity_frames;
@@ -63,33 +69,10 @@ int main() {
         int frame_r_st = num[1]-frame_extend;
         int frame_r_ed = num[2]+frame_extend;
         int Target_ID = num[0];
-
         int nc = frame_r_st / 10000;
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
-        double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
-        double C_z_coor_average_1, C_z_coor_average_2;
-        double C_x_coor_sum = 0, C_y_coor_sum = 0;
-        double C_x_coor_center, C_y_coor_center;
-
         double dz, Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN;
-        for (index C_index = 0; C_index != 1400; ++C_index) {
-            C_z_coor_sum_1 += nc_data.atom_coordinate(frame, C_index)[2];
-            C_z_coor_sum_2 += nc_data.atom_coordinate(frame, (1400 + C_index))[2];
-            C_y_coor_sum += nc_data.atom_coordinate(frame, C_index)[1];
-            C_x_coor_sum += nc_data.atom_coordinate(frame, C_index)[0];
-        }
-        C_z_coor_average_1 = C_z_coor_sum_1 / 1400;
-        C_z_coor_average_2 = C_z_coor_sum_2 / 1400;
-        C_y_coor_center = C_y_coor_sum / 1400;
-        C_x_coor_center = C_x_coor_sum / 1400;
-
-        Z_UP = C_z_coor_average_2;
-        Z_DOWN = C_z_coor_average_1;
-        Y_UP = C_y_coor_center + deviation_y_center;
-        Y_DOWN = C_y_coor_center - deviation_y_center;
-        X_UP = C_x_coor_center + deviation_x_center;
-        X_DOWN = C_x_coor_center - deviation_x_center;
         std::cout<<Target_ID<<std::setw(10)<<frame_r_st<<std::endl;
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
         for (int frame_r=frame_r_st;frame_r<frame_r_ed&&frame_r<1000000;frame_r+=dt) {
@@ -102,8 +85,31 @@ int main() {
                 nc++;
             }
             nc--;
+            if (frame_r==frame_r_st) {
+                double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
+                double C_z_coor_average_1, C_z_coor_average_2;
+                double C_x_coor_sum = 0, C_y_coor_sum = 0;
+                double C_x_coor_center, C_y_coor_center;
+                for (index C_index = 0; C_index != 1400; ++C_index) {
+                    C_z_coor_sum_1 += nc_data.atom_coordinate(frame, C_index)[2];
+                    C_z_coor_sum_2 += nc_data.atom_coordinate(frame, (1400 + C_index))[2];
+                    C_y_coor_sum += nc_data.atom_coordinate(frame, C_index)[1];
+                    C_x_coor_sum += nc_data.atom_coordinate(frame, C_index)[0];
+                }
+                C_z_coor_average_1 = C_z_coor_sum_1 / 1400;
+                C_z_coor_average_2 = C_z_coor_sum_2 / 1400;
+                C_y_coor_center = C_y_coor_sum / 1400;
+                C_x_coor_center = C_x_coor_sum / 1400;
+
+                Z_UP = C_z_coor_average_2;
+                Z_DOWN = C_z_coor_average_1;
+                Y_UP = C_y_coor_center + deviation_y_center;
+                Y_DOWN = C_y_coor_center - deviation_y_center;
+                X_UP = C_x_coor_center + deviation_x_center;
+                X_DOWN = C_x_coor_center - deviation_x_center;
+                dz=(Z_UP-Z_DOWN)/z_points;
+            }
             double temp_distance;
-            dz=(Z_UP-Z_DOWN)/z_points;
             sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
             nctraj nc_data(name_nc);
             index frame = frame_r - total_frame + nc_data.frames_number();
@@ -111,19 +117,21 @@ int main() {
             O1_coor = nc_data.atom_coordinate(frame, Target_ID);
             for (int i=1;i<z_points;i++){
                 if (last_stablestate[i][0]==frame_r-dt){
-                   temp_distance=abs(O1_coor[2]- Z_DOWN-i*dz);
+
+                   temp_distance=sqrt((pow((O1_coor[2]- (Z_DOWN+i*dz)),2)+pow(last_stablestate[i][2],2)*int(last_stablestate[i][1]/dt))/(int(last_stablestate[i][1])/dt+1));
                     if (temp_distance<stable_width_cutoff){
+                        //std::cout<<temp_distance<<std::endl;
                         last_stablestate[i][0]=frame_r;
                         last_stablestate[i][1]+=dt;
                         last_stablestate[i][2]=temp_distance;
                     }
                     else{
-                        stable_time_distribution[i]+=last_stablestate[i][1];
+                        stable_time_distribution[i][int((last_stablestate[i][1])/dt)]++;
                         total_wat[i]++;
                     }
                 }
                 else{
-                    temp_distance=abs(O1_coor[2]- Z_DOWN-i*dz);
+                    temp_distance=sqrt((pow((O1_coor[2]- (Z_DOWN+i*dz)),2)));
                     if (temp_distance<stable_width_cutoff){
                         last_stablestate[i][0]=frame_r;
                         last_stablestate[i][1]=dt;
@@ -137,9 +145,14 @@ int main() {
         outfile.open("stabletime_distribution_dt=16fs");
         for(int i =1; i !=z_points; ++i)
         {
-            outfile<<Z_DOWN+i*dz<<std::setw(10)<<stable_time_distribution[i]/total_wat[i]<<std::endl;
+            for(int j=0; j !=max_time; ++j)
+            {
+                outfile<<std::setw(12)<<stable_time_distribution[i][j]/total_wat[i];
+            }
+            //std::cout<<total_wat[i]<<std::setw(5);
+            outfile<<std::endl;
         }
-
+        //std::cout<<std::endl;
         outfile.close();
     }
     infile.close();
