@@ -14,7 +14,7 @@
 #define name_parm7 "density_dis9a5.parm7" 
 #define jump_time 5000
 #define max_transition_time 10000
-#define dt 10
+#define dt 20
 //~ #define name_nc "water_ion_graphene_10a5"
 std::vector<std::vector<int>>  pick_frame(int frame_start, int  frame_end, std::vector<double>   XYZ_limit, int o_wat_id);
 std::vector<std::vector<int>>  calc_jump(std::vector<std::vector<int>> condensed_frames);
@@ -43,20 +43,22 @@ int main()
 	double C_x_coor_sum = 0, C_y_coor_sum = 0;
     double C_x_coor_center, C_y_coor_center;
     double Z_UP,Z_DOWN,Y_UP,Y_DOWN,X_UP,X_DOWN;
-
-	amber_parm parm_nam(name_parm7);
-	nctraj data_nc("nc/density_dis9a5_37.nc");
-	for( index C_index = 0 ; C_index != 1400 ; ++C_index)
-	{
-		       C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
-		       C_z_coor_sum_2 += data_nc.atom_coordinate(0, (1400+C_index))[2];
-		       C_y_coor_sum += data_nc.atom_coordinate(0, C_index)[1];
-   		       C_x_coor_sum += data_nc.atom_coordinate(0, C_index)[0];
-	 }
-	 C_z_coor_average_1 = C_z_coor_sum_1/1400;
-	 C_z_coor_average_2 = C_z_coor_sum_2/1400;
-	 C_y_coor_center = C_y_coor_sum/1400;
-	 C_x_coor_center = C_x_coor_sum/1400;
+    for (int nc=start_nc;nc<=end_nc;nc++) {
+        amber_parm parm_nam(name_parm7);
+        char name_nc[64];
+        sprintf(name_nc, "nc/density_dis9a5_%d.nc",nc);
+        nctraj data_nc(name_nc);
+        for (index C_index = 0; C_index != 1400; ++C_index) {
+            C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
+            C_z_coor_sum_2 += data_nc.atom_coordinate(0, (1400 + C_index))[2];
+            C_y_coor_sum += data_nc.atom_coordinate(0, C_index)[1];
+            C_x_coor_sum += data_nc.atom_coordinate(0, C_index)[0];
+        }
+    }
+	 C_z_coor_average_1 = C_z_coor_sum_1/(1400*(end_nc-start_nc+1));
+	 C_z_coor_average_2 = C_z_coor_sum_2/(1400*(end_nc-start_nc+1));
+	 C_y_coor_center = C_y_coor_sum/(1400*(end_nc-start_nc+1));
+	 C_x_coor_center = C_x_coor_sum/(1400*(end_nc-start_nc+1));
 
     Z_UP = C_z_coor_average_2;
     Z_DOWN = C_z_coor_average_1;
@@ -80,9 +82,9 @@ int main()
 	xyz.push_back(Z_DOWN);
 	xyz.push_back(Z_UP);
 
-
+    amber_parm parm_nam(name_parm7);
     std::vector<std::vector<int>> pickframe;		
-    std::vector<index> O_WAT_id = parm_nam.id_by_type("OW");	
+    std::vector<index> O_WAT_id = parm_nam.id_by_type("OW");
 	std::cout<< "total water:  " << O_WAT_id.size() <<"\n" <<std::endl;
 
 	std::vector<int> wat_jump_count;
@@ -111,6 +113,11 @@ int main()
 			calc_distribution(jump_stat,transitionpath_time_distribution);
 			jump_stat.clear();
 		}
+		for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
+		{
+			//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
+			outfile<< i*dt<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
+		}
     }
 	
 	//~ std::ofstream outfile;
@@ -118,11 +125,7 @@ int main()
 
 	//~ outfile.open("count_jump_time_with_transition");
 
-	for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
-	{
-		//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
-		outfile<< i*dt<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
-     }
+
      //~ outfile.close();      
 	//~ return 0;
 	outfile.close();
@@ -187,11 +190,11 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
 			{
 				std::vector<int>  bbb;
 				bbb.push_back(frame_in_total_nc+frame);
-				if(o_coor[2] > ((XYZ_limit[5]*81+XYZ_limit[4]*79)/160 + width_transition))
+				if(o_coor[2] > ((XYZ_limit[5]*80+XYZ_limit[4]*80)/160 + width_transition))
 				{
 					bbb.push_back(1);
 				 }
-				 else if(o_coor[2] < ((XYZ_limit[5]*81+XYZ_limit[4]*79)/160 - width_transition))
+				 else if(o_coor[2] < ((XYZ_limit[5]*80+XYZ_limit[4]*80)/160 - width_transition))
 				 {
 					 bbb.push_back(-1);
 			     }
