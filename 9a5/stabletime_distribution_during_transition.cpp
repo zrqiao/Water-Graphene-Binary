@@ -19,12 +19,12 @@
 #define hbond_cutoff_angle_down 135.0
 #define bond_length_number 80
 #define bond_angle_number 60
-#define z_points    160
+#define z_points    320
 #define max_sampling 160000
-#define max_time 500
+#define max_time 100
 #define dt 4
-#define frame_extend 200
-#define stable_width_cutoff 0.3
+#define frame_extend 0
+#define stable_width_cutoff 0.24
 #define name_parm7 "density_dis9a5.parm7"
 
 //~ #define name_nc "water_ion_graphene_10a5"
@@ -37,6 +37,8 @@ double newstate_refresh(std::vector<index> &state_vector,int frame, double newst
 }
 
 int main() {
+    static double stable_time_by_z [z_points]={0};
+    static double time_by_z_long [z_points]={0};
     static double** stable_time_distribution=new double* [z_points];
     for (int i=0;i<z_points;i++){
         stable_time_distribution[i]=new double[max_time];
@@ -49,6 +51,7 @@ int main() {
         last_stablestate[i][1]=0;
         last_stablestate[i][2]=0;
     }
+    double dz, Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN;
     std::ifstream infile;
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate waiting time distribution in metastable states" << "\n" << std::endl;
@@ -62,7 +65,7 @@ int main() {
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
 
-    infile.open("transition_path_index_start_finish_down");
+    infile.open("jump/cutoff_1a1/transition_path_index_start_finish_down");
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
@@ -72,7 +75,7 @@ int main() {
         int nc = frame_r_st / 10000;
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
-        double dz, Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN;
+
         std::cout<<Target_ID<<std::setw(10)<<frame_r_st<<std::endl;
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
         for (int frame_r=frame_r_st;frame_r<frame_r_ed&&frame_r<1000000;frame_r+=dt) {
@@ -127,6 +130,10 @@ int main() {
                     }
                     else{
                         stable_time_distribution[i][int((last_stablestate[i][1])/dt)]++;
+                        stable_time_by_z[i]+=last_stablestate[i][1];
+                        if (last_stablestate[i][1]>=100) {
+                            time_by_z_long[i]+=last_stablestate[i][1];
+                        }
                         total_wat[i]++;
                     }
                 }
@@ -141,23 +148,32 @@ int main() {
             }
 
         }
-        std::ofstream outfile;
-        outfile.open("stabletime_distribution_dt=16fs");
-        for(int i =1; i !=z_points; ++i)
-        {
-            for(int j=0; j !=max_time; ++j)
-            {
-                outfile<<std::setw(12)<<stable_time_distribution[i][j]/total_wat[i];
-            }
-            //std::cout<<total_wat[i]<<std::setw(5);
-            outfile<<std::endl;
-        }
-        //std::cout<<std::endl;
-        outfile.close();
     }
     infile.close();
-
-
+    std::ofstream outfile;
+    outfile.open("jump/cutoff_1a1/stabletime_distribution_cutoff_1a1_0a24_dt=16fs_extend=0ps");
+    std::ofstream outfile1;
+    outfile1.open("jump/cutoff_1a1/stabletime_distribution_by_z_cutoff_1a1_0a24_dt=16fs_extend=0ps");
+    std::ofstream outfile2;
+    outfile2.open("jump/cutoff_1a1/stabletime_longtime_by_z_cutoff_1a1_0a24_dt=16fs_extend=0ps");
+    for(int i =1; i !=z_points; ++i)
+    {
+        for(int j=0; j !=max_time; ++j)
+        {
+            outfile<<std::setw(15)<<stable_time_distribution[i][j]/total_wat[i];
+        }
+        //std::cout<<total_wat[i]<<std::setw(5);
+        outfile<<std::endl;
+        outfile1<<Z_DOWN+i*dz<<std::setw(12)<<4*stable_time_by_z[i]/total_wat[i]<<std::endl;
+    }
+    for(int i =1; i !=z_points; ++i)
+    {
+        outfile2<<Z_DOWN+i*dz<<std::setw(14)<<4*time_by_z_long[i]/total_wat[i]<<std::endl;
+    }
+    //std::cout<<std::endl;
+    outfile.close();
+    outfile1.close();
+    outfile2.close();
     //infile1.close();
     return 0;
 }

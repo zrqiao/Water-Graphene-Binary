@@ -23,7 +23,7 @@
 #define z_points    160
 #define max_sampling 160000
 #define dt 4
-#define frame_extend 100
+#define frame_extend 0
 #define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 typedef std::vector<double>::size_type index;
@@ -54,6 +54,8 @@ int main() {
     double bond_distribution[z_points][z_points]={0};
     double bond_distribution_H[z_points][z_points]={0};
     std::ifstream infile;
+    std::ofstream outfile0;
+    outfile0.open("H-Bond/H_Bond_O_index_during_transition");
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate H Bond distribution during transition" << "\n" << std::endl;
     static std::vector<int> cavity_frame;
@@ -68,7 +70,7 @@ int main() {
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
 
-    infile.open("transition_path_index_start_finish_down");
+    infile.open("jump/cutoff_1a3/transition_path_index_start_finish_down");
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
@@ -128,14 +130,24 @@ int main() {
                     select_wat_id.push_back(O_WAT_id[i]);
                 }
             }
+            outfile0<<Target_ID<<std::setw(10)<<nc<<std::setw(10)<<frame<<std::setw(10);
             for (index j = 0; j != select_wat_id.size(); ++j) {
                 if (Target_ID != select_wat_id[j]) {
                     O2_coor = nc_data.atom_coordinate(frame, select_wat_id[j]);
                     H1_coor = nc_data.atom_coordinate(frame, select_wat_id[j] + 1);
                     H2_coor = nc_data.atom_coordinate(frame, select_wat_id[j] + 2);
-                    bond_distribution[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
-                    [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
-                            += (judge_H_Bond(O1_coor, H1_coor, O2_coor) + judge_H_Bond(O1_coor, H2_coor, O2_coor));
+                    if (judge_H_Bond(O1_coor, H1_coor, O2_coor)) {
+                        bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                        [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                                += 1;
+                        outfile0<<select_wat_id[j]<<std::setw(10);
+                    }
+                    if (judge_H_Bond(O1_coor, H2_coor, O2_coor)) {
+                        bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                        [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                                += 1;
+                        outfile0<<select_wat_id[j]<<std::setw(10);
+                    }
                 }
             }
             for (index j = 0; j != select_wat_id.size(); ++j) {
@@ -143,20 +155,25 @@ int main() {
                     O2_coor = nc_data.atom_coordinate(frame, select_wat_id[j]);
                     H1_coor = nc_data.atom_coordinate(frame, Target_ID + 1);
                     H2_coor = nc_data.atom_coordinate(frame, Target_ID + 2);
-                    bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
-                    [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
-                            += (judge_H_Bond(O1_coor, H1_coor, O2_coor) + judge_H_Bond(O1_coor, H2_coor, O2_coor));
+                    if (judge_H_Bond(O1_coor, H1_coor, O2_coor)) {
+                        bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                        [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                                += 1;
+                        outfile0<<select_wat_id[j]<<std::setw(10);
+                    }
+                    if (judge_H_Bond(O1_coor, H2_coor, O2_coor)) {
+                        bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                        [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
+                                += 1;
+                        outfile0<<select_wat_id[j]<<std::setw(10);
+                    }
                 }
-
             }
+            outfile0<<std::endl;
         }
 
-        for(int i =0; i !=z_points; ++i){
-            std::cout<<total_wat_z[i]<<' ';
-        }
-        std::cout<<std::endl;
         std::ofstream outfile;
-        outfile.open("H-Bond/H_Bond_with_transition_O");
+        outfile.open("H-Bond/H_Bond_with_transition_O_1a3");
         for(int i =0; i !=z_points; ++i)
         {
             for(int j=0; j !=z_points; ++j)
@@ -168,7 +185,7 @@ int main() {
 
         outfile.close();
             std::ofstream outfile1;
-            outfile1.open("H-Bond/H_Bond_with_transition_H");
+            outfile1.open("H-Bond/H_Bond_with_transition_H_1a3");
             for(int i =0; i !=z_points; ++i)
             {
                 for(int j=0; j !=z_points; ++j)
@@ -181,6 +198,7 @@ int main() {
             outfile1.close();
     }
     infile.close();
+    outfile0.close();
 
 
     //infile1.close();

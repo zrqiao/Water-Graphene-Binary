@@ -64,14 +64,14 @@ int main() {
     index frame=0;
     index frame0=0;
     char name_nc[64];
-    sprintf(name_nc, "density_dis9a5_%d.nc", start_nc);
+    sprintf(name_nc, "nc/density_dis9a5_%d.nc", start_nc);
     amber_parm parm_name(name_parm7);
     nctraj nc_data(name_nc);
     std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
 
-    infile.open("transition_path_index_start_finish_down");
+    infile.open("jump/cutoff_1a3/transition_path_index_start_finish_down");
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
@@ -80,7 +80,7 @@ int main() {
         int Target_ID = num[0];
 
         int nc = frame_r_st / 10000;
-        sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+        sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
         double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
         double C_z_coor_average_1, C_z_coor_average_2;
@@ -106,55 +106,51 @@ int main() {
         X_UP = C_x_coor_center + deviation_x_center;
         X_DOWN = C_x_coor_center - deviation_x_center;
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
-        if (frame_r_ed-frame_r_st>2000) {
-            for (int frame_r = frame_r_st; frame_r < frame_r_ed; frame_r += dt) {
+        if (frame_r_ed-frame_r_st>3000) {
+
+            for (int frame_r = frame_r_st-1000; frame_r < frame_r_ed+1000; frame_r += dt) {
                 int nc = start_nc;
                 int total_frame = start_nc * 10000;
                 while (total_frame <= frame_r) {
-                    sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+                    sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
                     nctraj nc_data(name_nc);
                     total_frame += nc_data.frames_number();
                     nc++;
                 }
                 nc--;
-                sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+                sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
                 nctraj nc_data(name_nc);
                 index frame = frame_r - total_frame + nc_data.frames_number();
                 O1_coor = nc_data.atom_coordinate(frame, Target_ID);
-                std::cout << frame_r - frame_r_st << std::setw(10) << O1_coor[2] << std::endl;
+                std::cout << frame<< std::setw(10) << O1_coor[2] << std::endl;
             }
+            std::cout<<nc<<std::setw(10)<<Target_ID<<std::endl;
         }
         /*for (int frame_r=frame_r_st;frame_r<frame_r_ed;frame_r+=dt) {
             int nc = start_nc;
             int total_frame = start_nc * 10000;
             while (total_frame <= frame_r) {
-                sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+                sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
                 nctraj nc_data(name_nc);
                 total_frame += nc_data.frames_number();
                 nc++;
             }
             nc--;
-            sprintf(name_nc, "density_dis9a5_%d.nc", nc);
+            sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
             nctraj nc_data(name_nc);
             index frame = frame_r - total_frame + nc_data.frames_number();
             select_wat_id.clear();
             O1_coor = nc_data.atom_coordinate(frame, Target_ID);
-            if (num[3]==-1){
-                total_wat_z[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]++;
-            }
-            else if(num[3]==1){
-                total_wat_z1[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]++;
-            }
+            total_wat_z[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]++;
+
         }
         std::cout<<Target_ID<<std::endl;
-        outfile1.open("z_distribution_with_transition_down");
-        outfile2.open("z_distribution_with_transition_up");
+        outfile1.open("jump/cutoff_1a3/z_distribution_with_transition");
         for (int i=0;i<z_points;i++){
             outfile1<<Z_DOWN+i*(Z_UP-Z_DOWN)/z_points<<std::setw(10)<< total_wat_z[i]<<std::endl;
-            outfile2<<Z_DOWN+i*(Z_UP-Z_DOWN)/z_points<<std::setw(10)<< total_wat_z1[i]<<std::endl;
         }
         outfile1.close();
-        outfile2.close();*/
+        */
     }
 
     infile.close();
