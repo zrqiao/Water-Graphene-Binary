@@ -8,20 +8,22 @@
 #include<cstring>
 #include<cfloat>
 #define z_axis_modify  2
-#define deviation_y_center 10
-#define deviation_x_center 10
-#define start_nc 49
+#define deviation_y_center 26
+#define deviation_x_center 26
+#define start_nc 4
 #define end_nc  100
-#define dt 4
-#define relaxation_time 20
+#define dt 5
+#define relaxation_time 1000
 #define name_parm7 "nc/density_dis9a5.parm7"
 #define psi 2.4
 #define cavity_cut 0.006
-#define dx 0.2
+#define dx 0.65
 #define cut_off 24
 #define max_size 2000
 #define max_life 10000
 #define max_circumference 400
+int x_points = deviation_x_center * 2 / dx;
+int y_points = deviation_y_center * 2 / dx;
 #define rapid_change_constant 5
 
 double density(double x,double y, double x_W, double y_W){
@@ -29,7 +31,7 @@ double density(double x,double y, double x_W, double y_W){
     return (1/(2*M_PI*pow(psi,2)))*exp(-2*(pow((r/psi),2)));
 }
 
-int calc_cavity_size(int &circumference,int x,int y,int &last_step_size, int **judge_matrix, int **calc_matrix,std::vector<int*> &temp_cavity_coordinate,int x_points, int y_points){
+int calc_cavity_size(int &last_step_size, int &circumference, int x, int y, int **judge_matrix, int **calc_matrix) {
     int *coordinate_vector=new int [2];
 	if (calc_matrix[x][y]==0){
         if (x==0 ||x==x_points-1||y==0||y==y_points-1){
@@ -45,32 +47,28 @@ int calc_cavity_size(int &circumference,int x,int y,int &last_step_size, int **j
             if (judge_matrix[x-1][y]==1 && calc_matrix[x-1][y]==0){
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
-				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(circumference,x-1,y,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(last_step_size, circumference, x - 1, y, judge_matrix, calc_matrix);
             }
         }
         if (y-1>=0){
             if (judge_matrix[x][y-1]==1 && calc_matrix[x][y-1]==0){
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
-				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(circumference,x,y-1,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(last_step_size, circumference, x, y - 1, judge_matrix, calc_matrix);
             }
         }
         if (x+1<x_points){
             if (judge_matrix[x+1][y]==1 && calc_matrix[x+1][y]==0){
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
-				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(circumference,x+1,y,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(last_step_size, circumference, x + 1, y, judge_matrix, calc_matrix);
             }
         }
         if (y+1<y_points){
             if (judge_matrix[x][y+1]==1 && calc_matrix[x][y+1]==0){
 				coordinate_vector[0]=x;
 				coordinate_vector[1]=y;
-				temp_cavity_coordinate.push_back(coordinate_vector);
-                calc_cavity_size(circumference,x,y+1,last_step_size,judge_matrix,calc_matrix,temp_cavity_coordinate,x_points,y_points);
+                calc_cavity_size(last_step_size, circumference, x, y + 1, judge_matrix, calc_matrix);
             }
         }
     }
@@ -83,8 +81,6 @@ int main() {
 
     typedef std::vector<double>::size_type index;
     std::cout << "program to find the cavities" << "\n" << std::endl;
-    int x_points = deviation_x_center * 2 / dx;
-    int y_points = deviation_y_center * 2 / dx;
 	double max_cavity_index=0;
     std::vector<double> cavity_quantities_by_size(max_size,0);
     std::vector<double> cavity_quantities_by_circumference(max_circumference,0);
@@ -124,7 +120,7 @@ int main() {
         printf("nc_file = %d\n", nc);
         int total_frame = nc_data.frames_number();
         std::cout << "total frame: " << total_frame << std::endl;
-        outfile2.open(name_out2);
+        //outfile2.open(name_out2);
         std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
         std::cout << "total water:  " << O_WAT_id.size() << "\n" << std::endl;
         std::vector<index> O_WAT_IN_C_id_upperlayer;
@@ -183,13 +179,13 @@ int main() {
                 for (int frame_t=frame;frame_t<frame+relaxation_time;frame_t+=dt) {
                     for (index i = 0; i != O_WAT_id.size(); ++i) {
                         O_coor = nc_data.atom_coordinate(frame, O_WAT_id[i]);
-                        if (O_coor[2] < Z_DOWN + (Z_UP - Z_DOWN) * 7 / 15 && O_coor[2] > Z_DOWN && O_coor[0] < X_UP &&
+                        if (O_coor[2] <  (Z_UP + Z_DOWN)/2 -0.8 && O_coor[2] > Z_DOWN && O_coor[0] < X_UP &&
                             O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
                         {
                             O_WAT_IN_C_id_lowerlayer.push_back(O_WAT_id[i]);
                             //~ std::cout << O_WAT_id[i] << std::endl;
                         }
-                        if (O_coor[2] < Z_UP && O_coor[2] > Z_UP - (Z_UP - Z_DOWN) * 7 / 15 && O_coor[0] < X_UP &&
+                        if (O_coor[2] < Z_UP && O_coor[2] > (Z_UP + Z_DOWN) /2+0.8 && O_coor[0] < X_UP &&
                             O_coor[0] > X_DOWN && O_coor[1] < Y_UP && O_coor[1] > Y_DOWN)//做修改，将水分为两层
                         {
                             O_WAT_IN_C_id_upperlayer.push_back(O_WAT_id[i]);
@@ -226,10 +222,10 @@ int main() {
                             judge_matrix[i][j] = 0;
                         }
                        //通过密度矩阵判断是否为空穴
-                        //std::cout<<judge_matrix[i][j]<<' ';
+                        std::cout<<judge_matrix[i][j]<<' ';
                         //sum_matrix[i][j]+=judge_matrix[i][j];
                     }
-                    //std::cout<<std::endl;
+                    std::cout<<std::endl;
                 }
 
                 int large_cavity_num=0;
@@ -297,7 +293,7 @@ int main() {
                             cavity_size=0;
                             cavity_circ=0;
                             temp_coordinates.clear();
-                            calc_cavity_size(cavity_circ,i,j,cavity_size,judge_matrix,calc_matrix,temp_coordinates,x_points,y_points);//
+                            calc_cavity_size(cavity_size, cavity_circ, i, j, judge_matrix, calc_matrix);//
                             //temp_coordinates.clear();//完全忽略面积信息，内存占用极大时使用
                             //std::cout<<temp_coordinates.size()<<std::endl;
                             //last_step_cavity_coordinate_by_index.push_back(temp_coordinates);
@@ -348,7 +344,7 @@ int main() {
 
         }
         outfile3.close();
-        outfile2.close();
+        //outfile2.close();
     }
 
 

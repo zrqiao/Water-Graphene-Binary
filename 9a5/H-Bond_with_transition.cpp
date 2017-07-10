@@ -54,8 +54,10 @@ int main() {
     double bond_distribution[z_points][z_points]={0};
     double bond_distribution_H[z_points][z_points]={0};
     std::ifstream infile;
-    std::ofstream outfile0;
-    outfile0.open("H-Bond/H_Bond_O_index_during_transition");
+    std::ofstream outfile01;
+    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up");
+    std::ofstream outfile02;
+    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down");
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate H Bond distribution during transition" << "\n" << std::endl;
     static std::vector<int> cavity_frame;
@@ -71,7 +73,9 @@ int main() {
     std::vector<double> O_coor,O_coor_initial;
 
     infile.open("jump/cutoff_1a3/transition_path_index_start_finish_down");
+    int jump_id=0;
     while (!infile.fail()) {
+        jump_id++;
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
         int frame_r_st = num[1]-frame_extend;
@@ -130,7 +134,8 @@ int main() {
                     select_wat_id.push_back(O_WAT_id[i]);
                 }
             }
-            outfile0<<Target_ID<<std::setw(10)<<nc<<std::setw(10)<<frame<<std::setw(10);
+            int get_HB_id=-1;
+            outfile01<<Target_ID<<std::setw(10)<<Target_ID<<std::setw(10)<<nc<<std::setw(10)<<frame<<std::setw(10);
             for (index j = 0; j != select_wat_id.size(); ++j) {
                 if (Target_ID != select_wat_id[j]) {
                     O2_coor = nc_data.atom_coordinate(frame, select_wat_id[j]);
@@ -140,13 +145,13 @@ int main() {
                         bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                         [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                                 += 1;
-                        outfile0<<select_wat_id[j]<<std::setw(10);
+                        outfile01<<select_wat_id[j]<<std::setw(10);
                     }
                     if (judge_H_Bond(O1_coor, H2_coor, O2_coor)) {
                         bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                         [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                                 += 1;
-                        outfile0<<select_wat_id[j]<<std::setw(10);
+                        outfile01<<select_wat_id[j]<<std::setw(10);
                     }
                 }
             }
@@ -159,20 +164,20 @@ int main() {
                         bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                         [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                                 += 1;
-                        outfile0<<select_wat_id[j]<<std::setw(10);
+                        outfile01<<select_wat_id[j]<<std::setw(10);
                     }
                     if (judge_H_Bond(O1_coor, H2_coor, O2_coor)) {
                         bond_distribution_H[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                         [int(floor((O2_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                                 += 1;
-                        outfile0<<select_wat_id[j]<<std::setw(10);
+                        outfile01<<select_wat_id[j]<<std::setw(10);
                     }
                 }
             }
-            outfile0<<std::endl;
+            outfile01<<std::setw(10)<<num[3]<<std::endl;
         }
 
-        std::ofstream outfile;
+        /*std::ofstream outfile;
         outfile.open("H-Bond/H_Bond_with_transition_O_1a3");
         for(int i =0; i !=z_points; ++i)
         {
@@ -195,10 +200,10 @@ int main() {
                 outfile1<<std::endl;
             }
 
-            outfile1.close();
+            outfile1.close();*/
     }
     infile.close();
-    outfile0.close();
+    outfile01.close();
 
 
     //infile1.close();

@@ -78,16 +78,17 @@ int main() {
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    infile.open("H-Bond/H_Bond_O_index_during_transition_read");
+    infile.open("H-Bond/H_Bond_O_index_transition_donor_up");
     int count=0;
     while (!infile.fail()) {
         count++;
         double num[4];
-        infile >> num[0] >> num[1]>>num[2]>>num[3];
+        infile >> num[0] >> num[1]>>num[2]>>num[3]>>num[4];
         int nc=num[1];
         int frame = num[2];
         int Target_ID = num[0];
         int HB_ID=num[3];
+        int direction=num[4];
         //std::cout<<nc<<' '<<frame<<' '<<Target_ID<<' '<<HB_ID<<std::endl;
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);

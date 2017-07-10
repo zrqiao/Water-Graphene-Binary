@@ -5,11 +5,11 @@
 
 
 //~ #define z_axis_modify  2
-#define width_transition 1.1
+#define width_transition 1.2
 #define deviation_y_center 26
 #define deviation_x_center 26
 #define start_nc 37
-#define end_nc  52
+#define end_nc  100
 //~ #define relaxation_time 25
 #define name_parm7 "density_dis9a5.parm7" 
 #define jump_time 5000
@@ -23,13 +23,12 @@ int main()
 {
 	std::vector<int*> jump_coor;
 	std::ofstream outfile;
-	outfile.open("jump/cutoff_1a1/jump_time_distribution");
 	std::ofstream outfile1;
-	outfile1.open("jump/cutoff_1a1/find_jump_coor_down");
+	outfile1.open("jump/cutoff_1a2/find_jump_coor_down");
 	std::ofstream outfile11;
-	outfile11.open("jump/cutoff_1a1/find_jump_coor_up");
+	outfile11.open("jump/cutoff_1a2/find_jump_coor_up");
 	std::ofstream outfile2;
-	outfile2.open("jump/cutoff_1a1/transition_path_index_start_finish_down");
+	outfile2.open("jump/cutoff_1a2/transition_path_index_start_finish_down");
 	std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
 	std::vector<int> jump_time_distribution(jump_time,0);
 	typedef std::vector<double>::size_type index;
@@ -113,13 +112,15 @@ int main()
 			calc_distribution(jump_stat,transitionpath_time_distribution);
 			jump_stat.clear();
 		}
-		for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
-		{
-			//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
-			outfile<< i*dt<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
-		}
+
     }
-	
+	for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
+	{
+		//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
+		outfile.open("jump/cutoff_1a2/jump_time_distribution");
+		outfile<< i*dt<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
+		outfile.close();
+	}
 	//~ std::ofstream outfile;
 
 
@@ -128,7 +129,6 @@ int main()
 
      //~ outfile.close();      
 	//~ return 0;
-	outfile.close();
 	outfile11.clear();
 	outfile1.close();
 	outfile2.close();
