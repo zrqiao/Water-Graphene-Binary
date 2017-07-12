@@ -56,9 +56,9 @@ int main() {
     double bond_distribution_H[z_points][z_points]={0};
     std::ifstream infile;
     std::ofstream outfile01;
-    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up");
+    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2");
     std::ofstream outfile02;
-    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down");
+    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2");
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate H Bond distribution during transition" << "\n" << std::endl;
     static std::vector<int> cavity_frame;
@@ -73,11 +73,13 @@ int main() {
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
 
-    infile.open("jump/cutoff_1a3/transition_path_index_start_finish_down");
+    infile.open("jump/cutoff_1a2/transition_path_index_start_finish_down");
+    double num[4];
+    infile >> num[0] >> num[1]>>num[2]>>num[3];
+    std::cout<<num[0]<<std::setw(10)<<num[1]<<std::endl;
     int jump_id=0;
     while (!infile.fail()) {
         jump_id++;
-        double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
         int frame_r_st = num[1]-frame_extend;
         int frame_r_ed = num[2]+frame_extend;

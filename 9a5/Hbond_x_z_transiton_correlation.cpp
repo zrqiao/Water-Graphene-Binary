@@ -24,7 +24,12 @@
 #define dr 0.01
 #define name_parm7 "density_dis9a5.parm7"
 typedef std::vector<double>::size_type index;
-
+int judge_layer(std::vector<double> coor,double Z_DOWN,double Z_UP){
+    if (coor[2] > (Z_DOWN + Z_UP) / 2) {
+        return 1;
+    }
+    else {return -1;}
+}
 int main() {
     static double z_x_correlation_upperlayer [z_points]={0};
     static double z_x_correlation_lowerlayer [z_points]={0};
@@ -78,7 +83,7 @@ int main() {
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    infile.open("H-Bond/H_Bond_O_index_transition_donor_up");
+    infile.open("H-Bond/H_Bond_O_index_during_transition_read");
     int count=0;
     while (!infile.fail()) {
         count++;

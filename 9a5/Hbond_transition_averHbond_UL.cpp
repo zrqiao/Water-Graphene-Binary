@@ -110,8 +110,7 @@ int main() {
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
-        if (true) {
-            if (!(num[0]==Target_ID&&nc==num[1]&&frame==num[2])){
+            if (num[0]!=Target_ID || nc!=num[1] ||frame!=num[2]){
                 Target_ID = num[0];
                 nc=num[1];
                 frame = num[2];
@@ -120,9 +119,11 @@ int main() {
                 O1_coor = nc_data.atom_coordinate(frame, Target_ID);
                 total_wat_z[int(floor((O1_coor[2] - Z_DOWN) / dz))]++;
                 count++;
+                std::cout<<nc<<' '<<frame<<' '<<Target_ID<<' '<<HB_ID<<std::endl;
             }
+            nctraj nc_data(name_nc);
+            O1_coor = nc_data.atom_coordinate(frame, Target_ID);
             HB_ID=num[3];
-            std::cout<<nc<<' '<<frame<<' '<<Target_ID<<' '<<HB_ID<<std::endl;
             O2_coor = nc_data.atom_coordinate(frame, HB_ID);
             H1_coor = nc_data.atom_coordinate(frame, HB_ID + 1);
             H2_coor = nc_data.atom_coordinate(frame, HB_ID + 2);
@@ -133,7 +134,7 @@ int main() {
                 aver_Hbond_num_lowerlayer_acceptor[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                         += (judge_H_Bond(O1_coor, H1_coor, O2_coor) + judge_H_Bond(O1_coor, H2_coor, O2_coor));
             }
-            std::cout<<judge_H_Bond(O1_coor, H1_coor, O2_coor)<<judge_H_Bond(O1_coor, H2_coor, O2_coor);
+            //std::cout<<judge_H_Bond(O1_coor, H1_coor, O2_coor )<<judge_H_Bond(O1_coor, H2_coor, O2_coor);
             H1_coor = nc_data.atom_coordinate(frame, Target_ID + 1);
             H2_coor = nc_data.atom_coordinate(frame, Target_ID + 2);
             if (judge_layer(O2_coor, Z_DOWN, Z_UP) == 1) {
@@ -143,7 +144,7 @@ int main() {
                 aver_Hbond_num_lowerlayer_donor[int(floor((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]
                         += (judge_H_Bond(O1_coor, H1_coor, O2_coor) + judge_H_Bond(O1_coor, H2_coor, O2_coor));
             }
-            std::cout<<judge_H_Bond(O1_coor, H1_coor, O2_coor) <<judge_H_Bond(O1_coor, H2_coor, O2_coor)<<std::endl;
+            //std::cout<<judge_H_Bond(O1_coor, H1_coor, O2_coor) <<judge_H_Bond(O1_coor, H2_coor, O2_coor)<<std::endl;
             //std::cout<<Target_ID<<std::setw(10)<<frame<<std::endl;
             if (count % 10000 == 0) {
                 std::ofstream outfile;
@@ -158,8 +159,18 @@ int main() {
                 }
                 outfile.close();
             }
-        }
     }
+    std::ofstream outfile;
+    outfile.open("H-Bond/average_Hbond_num_ULlayer_transitionpath");//0 Z 1 AU 2 AL 3 DU 4 DL
+    for (int i = 1; i != z_points; ++i) {
+        outfile << Z_DOWN + i * dz << std::setw(12)
+                << aver_Hbond_num_upperlayer_acceptor[i] / total_wat_z[i] << std::setw(12)
+                << aver_Hbond_num_lowerlayer_acceptor[i] / total_wat_z[i]
+                << std::setw(12) << aver_Hbond_num_upperlayer_donor[i] / total_wat_z[i] << std::setw(12)
+                << aver_Hbond_num_lowerlayer_donor[i] / total_wat_z[i] << std::endl;
+        //std::cout <<total_wat[i]<<std::setw(2);
+    }
+    outfile.close();
     infile.close();
     return 0;
 

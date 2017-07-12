@@ -54,7 +54,7 @@ set(SOURCE_FILES1
         #water/Find_cavity_in_bulk_water.cpp 9a5/output_z_trajectory.cpp
 
         #9a5/format_translation_frame-nc.cpp
-        )
+        9a5/H-Bond_transitionCV_getzeropoint.cpp)
 set(SOURCE_FILES2
         9a5/enthaply/amber_netcdf.hpp
         9a5/enthaply/amber_parm_1.0.hpp
@@ -65,12 +65,14 @@ set(SOURCE_FILES2
         #9a5/H-Bond_by_z.cpp
         #9a5/H-Bond_Hdonor_index_forH1H2_read.cpp
         9a5/H_Bond_H1H2.cpp
+        #9a5/Hbond_transition_averHbond_UL.cpp
         )
 
 
 add_executable(jump ${SOURCE_FILES})
 add_executable(cavity ${SOURCE_FILES1})
 add_executable(H-Bond ${SOURCE_FILES2} )
+add_executable(zeropoint 9a5/H-Bond_transitionCV_getzeropoint.cpp)
 add_executable(Bulk_water water/Find_cavity_in_bulk_water.cpp)
 
 include_directories(/usr/local/include)
@@ -83,3 +85,5 @@ target_link_libraries(cavity -lnetcdf_c++ )
 target_link_libraries(H-Bond -lnetcdf_c++)
 target_link_libraries(jump -lnetcdf_c++)
 target_link_libraries(Bulk_water -lnetcdf_c++)
+
+target_link_libraries(zeropoint -lnetcdf_c++)
