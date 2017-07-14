@@ -8,7 +8,7 @@
 //~ #include <stdlib.h>
 //~ #include <stdio.h>
 
-
+#define task_num 1
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
@@ -54,11 +54,12 @@ int main() {
     std::vector<double> total_wat_z(z_points,0);
     double bond_distribution[z_points][z_points]={0};
     double bond_distribution_H[z_points][z_points]={0};
+    char task_str[8];
     std::ifstream infile;
     std::ofstream outfile01;
-    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2");
+    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_4");
     std::ofstream outfile02;
-    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2");
+    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2_4");
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate H Bond distribution during transition" << "\n" << std::endl;
     static std::vector<int> cavity_frame;
@@ -73,7 +74,7 @@ int main() {
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
 
-    infile.open("jump/cutoff_1a2/transition_path_index_start_finish_down");
+    infile.open("jump/cutoff_1a2/transition_path_index_start_finish_down_4");
     double num[4];
     infile >> num[0] >> num[1]>>num[2]>>num[3];
     std::cout<<num[0]<<std::setw(10)<<num[1]<<std::endl;
@@ -220,7 +221,7 @@ int main() {
     }
     infile.close();
     outfile01.close();
-
+    outfile02.close();
 
     //infile1.close();
     return 0;

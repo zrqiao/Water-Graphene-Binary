@@ -8,7 +8,7 @@
 #define deviation_y_center 10
 #define deviation_x_center 10
 #define start_nc 37
-#define end_nc  52
+#define end_nc  100
 #define select_boundary 3.55
 #define hbond_cutoff_up 3.5
 #define hbond_cutoff_down 2.0

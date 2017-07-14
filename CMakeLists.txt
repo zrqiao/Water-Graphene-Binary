@@ -68,10 +68,10 @@ set(SOURCE_FILES2
         #9a5/Hbond_transition_averHbond_UL.cpp
         )
 
-
 add_executable(jump ${SOURCE_FILES})
 add_executable(cavity ${SOURCE_FILES1})
 add_executable(H-Bond ${SOURCE_FILES2} )
+add_executable(H-Bond_Hdonor_index_forH1H2_read_1a2_4 9a5/H-Bond_Hdonor_index_forH1H2_read)
 add_executable(zeropoint 9a5/H-Bond_transitionCV_getzeropoint.cpp)
 add_executable(Bulk_water water/Find_cavity_in_bulk_water.cpp)
 
@@ -85,5 +85,5 @@ target_link_libraries(cavity -lnetcdf_c++ )
 target_link_libraries(H-Bond -lnetcdf_c++)
 target_link_libraries(jump -lnetcdf_c++)
 target_link_libraries(Bulk_water -lnetcdf_c++)
-
+target_link_libraries(H-Bond_Hdonor_index_forH1H2_read_1a2_4 -lnetcdf_c++)
 target_link_libraries(zeropoint -lnetcdf_c++)

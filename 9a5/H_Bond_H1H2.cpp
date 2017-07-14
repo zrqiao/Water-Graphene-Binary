@@ -47,6 +47,8 @@ int main() {
     static double H2_avernum_upperlayer_t [t_com*2]={0};
     static double H1_avernum_lowerlayer_t [t_com*2]={0};
     static double H2_avernum_lowerlayer_t [t_com*2]={0};
+    static double H1_correlationfunction_t [t_com*2]={0};
+    static double H2_correlationfunction_t [t_com*2]={0};
     static double H2_averz_t [t_com*2]={0};
     static double H1_averz_t [t_com*2]={0};
     static double O_averz_t [t_com*2]={0};
@@ -59,9 +61,9 @@ int main() {
     double dz, Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN;
     std::vector<double> OH1_vec(3,0),OH2_vec(3,0),Dip_vec(3,0),Nor_vec(3,0);
     std::ifstream infile;
-    infile.open("H-Bond/H_Bond_O_index_transition_donor_up");
+    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2");
     std::ifstream infile0;
-    infile0.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint");
+    infile0.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2");
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate average H bond number of H1 and H2" << "\n" << std::endl;
     static std::vector<int> cavity_frame;
@@ -152,7 +154,9 @@ int main() {
                 angleH1=calc_angle_z_axis(OH1_vec);
                 angleH2=calc_angle_z_axis(OH2_vec);
                 angleDip=calc_angle_z_axis(Dip_vec);
-                angleNor=calc_angle_z_axis(Nor_vec);
+                std::vector<double> z_axis={0,0,1};
+                angleNor=180.0*acos(fabs((vector_calc::vector_angle(z_axis,Nor_vec))))/vector_calc::PI;
+                //if (dtp==t_com) {std::cout<<angleNor<<std::endl;}
                 total_wat[int(round((O1_coor[2] - Z_DOWN) / dz))]++;
                 total_wat_t[dtp]++;
                 H1_averz_t[dtp]+=H1_coor[2];
@@ -170,6 +174,7 @@ int main() {
                     } else if (judge_layer(H1O_coor, Z_DOWN, Z_UP) == -1) {
                         H1_avernum_lowerlayer[int(round((O1_coor[2] - Z_DOWN) / dz))]++;
                         H1_avernum_lowerlayer_t[dtp]++;
+                        H1_correlationfunction_t[dtp]+=1;
                     }
                 }
                 if (num[temp_H2+3] != -1) {
@@ -177,6 +182,7 @@ int main() {
                     if (judge_layer(H2O_coor, Z_DOWN, Z_UP) == 1) {
                         H2_avernum_upperlayer[int(round((O1_coor[2] - Z_DOWN) / dz))]++;
                         H2_avernum_upperlayer_t[dtp]++;
+                        H2_correlationfunction_t[dtp]+=1;
                     } else if (judge_layer(H2O_coor, Z_DOWN, Z_UP) == -1) {
                         H2_avernum_lowerlayer[int(round((O1_coor[2] - Z_DOWN) / dz))]++;
                         H2_avernum_lowerlayer_t[dtp]++;
@@ -191,13 +197,15 @@ int main() {
         }
     }
     std::ofstream outfile;
-    outfile.open("H-Bond/H1H2_z_averHbondnum_cutoff_up");//0 z 1 H1u 2 H1l 3 H2u 4 H2l
+    outfile.open("H-Bond/H1H2_z_averHbondnum_cutoff1a2_up_test");//0 z 1 H1u 2 H1l 3 H2u 4 H2l
     std::ofstream outfile1;
-    outfile1.open("H-Bond/H1H2_t_averHbondnum_cutoff_up");//0 t 1 H1u 2 H1l 3 H2u 4 H2l
+    outfile1.open("H-Bond/H1H2_t_averHbondnum_cutoff1a2_up_test");//0 t 1 H1u 2 H1l 3 H2u 4 H2l
     std::ofstream outfile2;
-    outfile2.open("jump/H1H2_t_averz_cutoff_up");//0 z 1 H1 2 H2 3 O
+    outfile2.open("jump/H1H2_t_averz_cutoff1a2_up_test");//0 z 1 H1 2 H2 3 O
     std::ofstream outfile3;
-    outfile3.open("jump/H1H2_t_averangle_zaxis_cutoff_up");//0 t 1 H1 2 H2 3 D 4 N
+    outfile3.open("jump/H1H2_t_averangle_zaxis_cutoff1a2_up_test");//0 t 1 H1 2 H2 3 D 4 N
+    std::ofstream outfile4;
+    outfile4.open("H-Bond/H1H2_t_Hbond_layerexchange_correlationfunction_test");
     for(int i =1; i !=z_points; ++i)
     {
         outfile<<Z_DOWN+i*dz<<std::setw(12)<<H1_avernum_upperlayer[i]/total_wat[i]<<std::setw(12)<<H1_avernum_lowerlayer[i]/total_wat[i]
@@ -212,12 +220,14 @@ int main() {
                 <<std::setw(12)<<O_averz_t[i]/total_wat_t[i]<<std::endl;
         outfile3<<4*(i*dt-t_com*dt)<<std::setw(12)<<H1_averangle_t[i]/total_wat_t[i]<<std::setw(12)<<H2_averangle_t[i]/total_wat_t[i]
                 <<std::setw(12)<<Dipole_averangle_t[i]/total_wat_t[i]<<std::setw(12)<<Normal_averangle_t[i]/total_wat_t[i]<<std::endl;
+        outfile4<<4*(i*dt-t_com*dt)<<std::setw(12)<<H1_correlationfunction_t[i]/total_wat_t[i]<<std::setw(12)<<H2_correlationfunction_t[i]/total_wat_t[i] <<std::endl;
         //std::cout <<total_wat[i]<<std::setw(2);
     }
     outfile.close();
     outfile1.close();
     outfile2.close();
     outfile3.close();
+    outfile4.close();
     infile.close();
     infile0.close();
     return 0;
