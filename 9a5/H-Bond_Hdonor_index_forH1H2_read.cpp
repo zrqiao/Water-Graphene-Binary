@@ -23,8 +23,8 @@
 #define bond_angle_number 60
 #define z_points    160
 #define max_sampling 160000
-#define dt 1
-#define frame_extend 100
+#define dt 4
+#define frame_extend 750
 #define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 typedef std::vector<double>::size_type index;
@@ -65,7 +65,7 @@ int main() {
     std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
-    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_3");
+    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_4");
     double num[4];
     infile >> num[0] >> num[1]>>num[2]>>num[3];
     std::cout<<num[0]<<std::setw(10)<<num[1]<<std::endl;
@@ -118,11 +118,6 @@ int main() {
         int nc = frame_r_st / 10000;
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
-        double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
-        double C_z_coor_average_1, C_z_coor_average_2;
-        double C_x_coor_sum = 0, C_y_coor_sum = 0;
-        double C_x_coor_center, C_y_coor_center;
-
         std::cout<<Target_ID<<std::setw(10)<<frame_r_st<<std::endl;
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
         char name_nc[64];
@@ -130,6 +125,7 @@ int main() {
         int total_frame = (start_nc) * 10000;
         int totframe_nc=nc_data.frames_number();
         for (int frame_r=frame_r_st;frame_r<=frame_r_ed&&frame_r<1000000;frame_r+=dt) {
+            select_wat_id.clear();
             if (frame_r==frame_r_st || frame_r>=(total_frame+totframe_nc)){
                 while (total_frame+totframe_nc <= frame_r) {
                     total_frame += totframe_nc;
@@ -182,7 +178,6 @@ int main() {
                 Hbond_stat_frame[4]=get_HB_id1;
                 Hbond_stat_frame[5]=get_HB_id2;
                 temp_Hbond_stat_up.push_back(Hbond_stat_frame);
-
             }
             else if (Direction==-1) {
                 get_HB_id1 = -1;
@@ -208,6 +203,8 @@ int main() {
                 Hbond_stat_frame[5]=get_HB_id2;
                 temp_Hbond_stat_down.push_back(Hbond_stat_frame);
             }
+            std::vector<int>().swap(Hbond_stat_frame);
+
         }
         /*std::ofstream outfile;
         outfile.open("H-Bond/H_Bond_with_transition_O_1a3");
@@ -233,32 +230,53 @@ int main() {
             }
 
             outfile1.close();*/
-    }
-
-    if (jump_id%1000==0) {
-        std::ofstream outfile01;
-        outfile01.open("~/for-lab/qzr/9a5/H_Bond_O_index_transition_donor_up_1a2_narrow",std::ios::app);
-        std::ofstream outfile02;
-        outfile02.open("~/for-lab/qzr/9a5/H_Bond_O_index_transition_donor_down_1a2_narrow",std::ios::app);
-        for (int i = 0; i < temp_Hbond_stat_up.size(); i++) {
-            outfile01 << temp_Hbond_stat_up[i][0] << std::setw(10) << temp_Hbond_stat_up[i][1] << std::setw(10)
-                      << temp_Hbond_stat_up[i][2] << std::setw(10) << temp_Hbond_stat_up[i][3]
-                      << std::setw(10);
-            outfile01 << temp_Hbond_stat_up[i][4] << std::setw(10) << temp_Hbond_stat_up[i][5] << std::setw(10)
-                      << std::endl;
+        if (jump_id%1000==0) {
+            std::ofstream outfile01;
+            outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_TSText",std::ios::app);
+            std::ofstream outfile02;
+            outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2_TSText",std::ios::app);
+            for (int i = 0; i < temp_Hbond_stat_up.size(); i++) {
+                outfile01 << temp_Hbond_stat_up[i][0] << std::setw(10) << temp_Hbond_stat_up[i][1] << std::setw(10)
+                          << temp_Hbond_stat_up[i][2] << std::setw(10) << temp_Hbond_stat_up[i][3]
+                          << std::setw(10);
+                outfile01 << temp_Hbond_stat_up[i][4] << std::setw(10) << temp_Hbond_stat_up[i][5] << std::setw(10)
+                          << std::endl;
+            }
+            for (int i = 0; i < temp_Hbond_stat_down.size(); i++) {
+                outfile02 << temp_Hbond_stat_down[i][0] << std::setw(10) << temp_Hbond_stat_down[i][1] << std::setw(10)
+                          << temp_Hbond_stat_down[i][2] << std::setw(10) << temp_Hbond_stat_down[i][3]
+                          << std::setw(10);
+                outfile02 << temp_Hbond_stat_down[i][4] << std::setw(10) << temp_Hbond_stat_down[i][5] << std::setw(10)
+                          << std::endl;
+            }
+            temp_Hbond_stat_down.clear();
+            temp_Hbond_stat_up.clear();
+            outfile01.close();
+            outfile02.close();
         }
-        for (int i = 0; i < temp_Hbond_stat_down.size(); i++) {
-            outfile02 << temp_Hbond_stat_down[i][0] << std::setw(10) << temp_Hbond_stat_down[i][1] << std::setw(10)
-                      << temp_Hbond_stat_down[i][2] << std::setw(10) << temp_Hbond_stat_down[i][3]
-                      << std::setw(10);
-            outfile02 << temp_Hbond_stat_down[i][4] << std::setw(10) << temp_Hbond_stat_down[i][5] << std::setw(10)
-                      << std::endl;
-        }
-        temp_Hbond_stat_down.clear();
-        temp_Hbond_stat_up.clear();
-        outfile01.close();
-        outfile02.close();
     }
+    std::ofstream outfile01;
+    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_TSText",std::ios::app);
+    std::ofstream outfile02;
+    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2_TSText",std::ios::app);
+    for (int i = 0; i < temp_Hbond_stat_up.size(); i++) {
+        outfile01 << temp_Hbond_stat_up[i][0] << std::setw(10) << temp_Hbond_stat_up[i][1] << std::setw(10)
+                  << temp_Hbond_stat_up[i][2] << std::setw(10) << temp_Hbond_stat_up[i][3]
+                  << std::setw(10);
+        outfile01 << temp_Hbond_stat_up[i][4] << std::setw(10) << temp_Hbond_stat_up[i][5] << std::setw(10)
+                  << std::endl;
+    }
+    for (int i = 0; i < temp_Hbond_stat_down.size(); i++) {
+        outfile02 << temp_Hbond_stat_down[i][0] << std::setw(10) << temp_Hbond_stat_down[i][1] << std::setw(10)
+                  << temp_Hbond_stat_down[i][2] << std::setw(10) << temp_Hbond_stat_down[i][3]
+                  << std::setw(10);
+        outfile02 << temp_Hbond_stat_down[i][4] << std::setw(10) << temp_Hbond_stat_down[i][5] << std::setw(10)
+                  << std::endl;
+    }
+    temp_Hbond_stat_down.clear();
+    temp_Hbond_stat_up.clear();
+    outfile01.close();
+    outfile02.close();
     infile.close();
 
 

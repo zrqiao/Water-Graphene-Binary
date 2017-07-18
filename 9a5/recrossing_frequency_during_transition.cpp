@@ -6,7 +6,7 @@
 #include "amber_parm_1.0.hpp"
 #include "vector_calc.h"
 //~ #define z_axis_modify  2
-#define width_transition 0.45
+#define width_transition 0.30
 #define deviation_y_center 26
 #define deviation_x_center 26
 #define start_nc 37
@@ -85,7 +85,7 @@ int main()
     std::vector<int> wat_jump_count;
     std::vector<std::vector<int>> wat_jump_distribution;
     std::ifstream infile;
-    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_2");
+    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_3");
     double num[4];
     while (!infile.fail()) {
         infile >> num[0] >> num[1]>>num[2]>>num[3];
@@ -116,7 +116,7 @@ int main()
         }
     }
     std::ofstream outfile2;
-    outfile2.open("jump/cutoff_1a2/recrossing_index_start_finish_down_3");
+    outfile2.open("jump/cutoff_1a2/recrossing_index_start_finish_down_4");
     for (int j = 0; j < recrossing_id.size(); j++) {
         outfile2 << recrossing_id[j] << std::setw(10) << recrossing_stat[j][0] << std::setw(10) << recrossing_stat[j][1]
                  << std::setw(10) << recrossing_stat[j][3] << std::endl;
@@ -124,8 +124,8 @@ int main()
     outfile2.close();
     std::ofstream outfile;
     std::ofstream outfile1;
-    outfile1.open("jump/cutoff_1a2/recrossing_count_in_jump_distribution_3");
-    outfile.open("jump/cutoff_1a2/recrossing_time_distribution_3");
+    outfile1.open("jump/cutoff_1a2/recrossing_count_in_jump_distribution_4");
+    outfile.open("jump/cutoff_1a2/recrossing_time_distribution_4");
     for (index i = 0; i < recrossing_time_distribution.size(); i += 1) {
         //~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
         outfile << i * dt * 4 << std::setw(15) << recrossing_time_distribution[i] << std::setw(15) << std::endl;

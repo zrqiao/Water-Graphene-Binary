@@ -77,7 +77,7 @@ int main() {
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_1");
+    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_3");
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
@@ -89,7 +89,7 @@ int main() {
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
-        /*if (frame_r_ed-frame_r_st>1000) {
+        if (frame_r_ed-frame_r_st>50) {
             nc=start_nc;
             int total_frame = (start_nc) * 10000;
             int totframe_nc=nc_data.frames_number();
@@ -112,8 +112,8 @@ int main() {
                 std::cout << (frame_r-frame_r_st)*4<< std::setw(10) << O1_coor[2] << std::endl;
             }
             std::cout<<nc<<std::setw(10)<<Target_ID<<std::endl;
-        }*/
-        char name_nc[64];
+        }
+        /*char name_nc[64];
         nc=start_nc;
         int total_frame = (start_nc) * 10000;
         int totframe_nc=nc_data.frames_number();
@@ -136,12 +136,12 @@ int main() {
             total_wat_z[int(round((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]++;
         }
         std::cout<<Target_ID<<std::endl;
-
         outfile1.open("jump/cutoff_1a2/z_distribution_with_transition_narrow");
         for (int i=0;i<z_points;i++){
             outfile1<<Z_DOWN+i*(Z_UP-Z_DOWN)/z_points<<std::setw(10)<< total_wat_z[i]<<std::endl;
         }
         outfile1.close();
+         */
     }
     infile.close();
     //infile1.close();

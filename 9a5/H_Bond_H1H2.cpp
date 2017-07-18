@@ -19,12 +19,12 @@
 #define z_points    320
 #define max_sampling 160000
 #define max_time 100
-#define dt 4
+#define dt 1
 #define frame_extend 0
 #define stable_width_cutoff 0.24
 #define dr 0.01
 #define name_parm7 "density_dis9a5.parm7"
-#define t_com 2000
+#define t_com 1000
 typedef std::vector<double>::size_type index;
 int judge_layer(std::vector<double> coor,double Z_DOWN,double Z_UP){
     if (coor[2] > (Z_DOWN + Z_UP) / 2) {
@@ -49,6 +49,7 @@ int main() {
     static double H2_avernum_lowerlayer_t [t_com*2]={0};
     static double H1_correlationfunction_t [t_com*2]={0};
     static double H2_correlationfunction_t [t_com*2]={0};
+    static double Nor_distribution[t_com*2][90]={0};
     static double H2_averz_t [t_com*2]={0};
     static double H1_averz_t [t_com*2]={0};
     static double O_averz_t [t_com*2]={0};
@@ -61,9 +62,9 @@ int main() {
     double dz, Z_UP, Z_DOWN, Y_UP, Y_DOWN, X_UP, X_DOWN;
     std::vector<double> OH1_vec(3,0),OH2_vec(3,0),Dip_vec(3,0),Nor_vec(3,0);
     std::ifstream infile;
-    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2");
+    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_narrow");
     std::ifstream infile0;
-    infile0.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2");
+    infile0.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2_narrow");
     static std::vector<double> cavity_frames;
     std::cout << "program to calculate average H bond number of H1 and H2" << "\n" << std::endl;
     static std::vector<int> cavity_frame;
@@ -155,7 +156,7 @@ int main() {
                 angleH2=calc_angle_z_axis(OH2_vec);
                 angleDip=calc_angle_z_axis(Dip_vec);
                 std::vector<double> z_axis={0,0,1};
-                angleNor=180.0*acos(fabs((vector_calc::vector_angle(z_axis,Nor_vec))))/vector_calc::PI;
+                angleNor=180.0*acos((fabs(vector_calc::vector_angle(z_axis,Nor_vec))))/vector_calc::PI;
                 //if (dtp==t_com) {std::cout<<angleNor<<std::endl;}
                 total_wat[int(round((O1_coor[2] - Z_DOWN) / dz))]++;
                 total_wat_t[dtp]++;
@@ -166,6 +167,7 @@ int main() {
                 H2_averangle_t[dtp]+=angleH2;
                 Dipole_averangle_t[dtp]+=angleDip;
                 Normal_averangle_t[dtp]+=angleNor;
+                Nor_distribution[dtp][int(floor(angleNor))]++;
                 if (num[temp_H1+3] != -1) {
                     H1O_coor = nc_data.atom_coordinate(frame, num[temp_H1+3]);
                     if (judge_layer(H1O_coor, Z_DOWN, Z_UP) == 1) {
@@ -197,15 +199,15 @@ int main() {
         }
     }
     std::ofstream outfile;
-    outfile.open("H-Bond/H1H2_z_averHbondnum_cutoff1a2_up_test");//0 z 1 H1u 2 H1l 3 H2u 4 H2l
+    outfile.open("jump/cutoff_1a2/H1H2_z_averHbondnum_cutoff1a2_up_test");//0 z 1 H1u 2 H1l 3 H2u 4 H2l
     std::ofstream outfile1;
-    outfile1.open("H-Bond/H1H2_t_averHbondnum_cutoff1a2_up_test");//0 t 1 H1u 2 H1l 3 H2u 4 H2l
+    outfile1.open("jump/cutoff_1a2/H1H2_t_averHbondnum_cutoff1a2_up_test");//0 t 1 H1u 2 H1l 3 H2u 4 H2l
     std::ofstream outfile2;
-    outfile2.open("jump/H1H2_t_averz_cutoff1a2_up_test");//0 z 1 H1 2 H2 3 O
+    outfile2.open("jump/cutoff_1a2/H1H2_t_averz_cutoff1a2_up_test");//0 z 1 H1 2 H2 3 O
     std::ofstream outfile3;
-    outfile3.open("jump/H1H2_t_averangle_zaxis_cutoff1a2_up_test");//0 t 1 H1 2 H2 3 D 4 N
+    outfile3.open("jump/cutoff_1a2/H1H2_t_averangle_zaxis_cutoff1a2_up_test");//0 t 1 H1 2 H2 3 D 4 N
     std::ofstream outfile4;
-    outfile4.open("H-Bond/H1H2_t_Hbond_layerexchange_correlationfunction_test");
+    outfile4.open("jump/cutoff_1a2/H1H2_t_Hbond_layerexchange_correlationfunction_test");
     for(int i =1; i !=z_points; ++i)
     {
         outfile<<Z_DOWN+i*dz<<std::setw(12)<<H1_avernum_upperlayer[i]/total_wat[i]<<std::setw(12)<<H1_avernum_lowerlayer[i]/total_wat[i]
@@ -222,12 +224,22 @@ int main() {
                 <<std::setw(12)<<Dipole_averangle_t[i]/total_wat_t[i]<<std::setw(12)<<Normal_averangle_t[i]/total_wat_t[i]<<std::endl;
         outfile4<<4*(i*dt-t_com*dt)<<std::setw(12)<<H1_correlationfunction_t[i]/total_wat_t[i]<<std::setw(12)<<H2_correlationfunction_t[i]/total_wat_t[i] <<std::endl;
         //std::cout <<total_wat[i]<<std::setw(2);
+
+    }
+    std::ofstream outfile5;
+    outfile5.open("jump/cutoff_1a2/H1H2_t_Nor_angledistribution_test");
+    for (int j=0;j<90;j++){
+        for(int i =1; i !=t_com*2; ++i){
+            outfile5<<Nor_distribution[i][j]/total_wat_t[i]<<std::setw(12);
+        }
+        outfile5<<std::endl;
     }
     outfile.close();
     outfile1.close();
     outfile2.close();
     outfile3.close();
     outfile4.close();
+    outfile5.close();
     infile.close();
     infile0.close();
     return 0;

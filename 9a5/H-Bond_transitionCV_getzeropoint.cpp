@@ -84,13 +84,13 @@ int main() {
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2");
+    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_narrow");
     int jump_count=2;
     double num[6];
     infile >> num[0] >> num[1] >> num[2] >> num[3] >> num[4] >> num[5];
     int Target_ID,nc,frame,HB_ID1,HB_ID2;
     std:: ofstream outfile;
-    outfile.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2");
+    outfile.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2_narrow");
     while (!infile.fail()) {
         int temp_H1=0,temp_H2=0;//H1 lower H2 upper
         bool fixed= false;
@@ -107,7 +107,7 @@ int main() {
                 sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
                 nctraj nc_data(name_nc);
                 O1_coor = nc_data.atom_coordinate(frame, Target_ID);
-                if (O1_coor[2] > (Z_DOWN + Z_UP) / 2 - 0.02 && O1_coor[2] < (Z_DOWN + Z_UP) / 2 + 0.12) {
+                if (O1_coor[2] > (Z_DOWN + Z_UP) / 2 - 0.02 && O1_coor[2] < (Z_DOWN + Z_UP) / 2 + 0.03) {
                     if (HB_ID1 * HB_ID2 < 0) {
                         if (HB_ID1 == -1 && judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1) {
                             temp_H1 = 2;
