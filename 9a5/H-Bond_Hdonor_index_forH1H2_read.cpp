@@ -12,8 +12,8 @@
 #define z_axis_modify  2
 #define deviation_y_center 10
 #define deviation_x_center 10
-#define start_nc 37
-#define end_nc  100
+#define start_nc 1
+#define end_nc  5
 #define select_boundary 3.55
 #define hbond_cutoff_up 3.5
 #define hbond_cutoff_down 2.0
@@ -23,8 +23,8 @@
 #define bond_angle_number 60
 #define z_points    160
 #define max_sampling 160000
-#define dt 4
-#define frame_extend 750
+#define dt 1
+#define frame_extend 250
 #define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 typedef std::vector<double>::size_type index;
@@ -59,19 +59,23 @@ int main() {
 
     index frame=0;
     char name_nc[64];
-    sprintf(name_nc, "nc/density_dis9a5_%d.nc", start_nc);
+    sprintf(name_nc, "density_dis9a5_%d.nc", start_nc);
     amber_parm parm_name(name_parm7);
     nctraj nc_data(name_nc);
     std::vector<index> O_WAT_id = parm_name.id_by_type("OW");
     std::vector<index> O_WAT_IN_C_id, select_wat_id;
     std::vector<double> O_coor,O_coor_initial;
-    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_4");
+    infile.open("transition_path_index_start_finish_down");
+    std::ifstream infile0;
+    infile0.open("H_Bond_O_index_transition_donor_up");
     double num[4];
     infile >> num[0] >> num[1]>>num[2]>>num[3];
     std::cout<<num[0]<<std::setw(10)<<num[1]<<std::endl;
     int jump_id=0;
     std::vector<std::vector<int>> temp_Hbond_stat_up;
     std::vector<std::vector<int>> temp_Hbond_stat_down;
+    std::vector<std::vector<int>> temp_Hbond_stat_up_TST;
+    std::vector<std::vector<int>> temp_Hbond_stat_down_TST;
     double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
     double C_z_coor_average_1, C_z_coor_average_2;
     double C_x_coor_sum = 0, C_y_coor_sum = 0;
@@ -80,7 +84,7 @@ int main() {
     for (int nc=start_nc;nc<=end_nc;nc++) {
         amber_parm parm_nam(name_parm7);
         char name_nc[64];
-        sprintf(name_nc, "nc/density_dis9a5_%d.nc",nc);
+        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
         nctraj data_nc(name_nc);
         for (index C_index = 0; C_index != 1400; ++C_index) {
             C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
@@ -122,20 +126,22 @@ int main() {
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
         char name_nc[64];
         nc=start_nc;
-        int total_frame = (start_nc) * 10000;
+        int total_frame = 0;
         int totframe_nc=nc_data.frames_number();
         for (int frame_r=frame_r_st;frame_r<=frame_r_ed&&frame_r<1000000;frame_r+=dt) {
+            if (frame_r<total_frame) {break;}
+            if (jump_id<6000) {break;}
             select_wat_id.clear();
             if (frame_r==frame_r_st || frame_r>=(total_frame+totframe_nc)){
                 while (total_frame+totframe_nc <= frame_r) {
                     total_frame += totframe_nc;
                     nc++;
-                    sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
+                    sprintf(name_nc, "density_dis9a5_%d.nc", nc);
                     nctraj nc_data(name_nc);
                     totframe_nc=nc_data.frames_number();
                 }
             }
-            sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
+            sprintf(name_nc, "density_dis9a5_%d.nc", nc);
             nctraj nc_data(name_nc);
             index frame = frame_r - total_frame ;
             //std::cout<<nc<<std::setw(5)<<frame<<std::endl;
@@ -178,6 +184,9 @@ int main() {
                 Hbond_stat_frame[4]=get_HB_id1;
                 Hbond_stat_frame[5]=get_HB_id2;
                 temp_Hbond_stat_up.push_back(Hbond_stat_frame);
+                if (frame_r>=frame_r_st+frame_extend&&frame_r<=frame_r_ed-frame_extend){
+                    temp_Hbond_stat_up_TST.push_back(Hbond_stat_frame);
+                }
             }
             else if (Direction==-1) {
                 get_HB_id1 = -1;
@@ -202,6 +211,9 @@ int main() {
                 Hbond_stat_frame[4]=get_HB_id1;
                 Hbond_stat_frame[5]=get_HB_id2;
                 temp_Hbond_stat_down.push_back(Hbond_stat_frame);
+                if (frame_r>=frame_r_st+frame_extend&&frame_r<=frame_r_ed-frame_extend){
+                    temp_Hbond_stat_down_TST.push_back(Hbond_stat_frame);
+                }
             }
             std::vector<int>().swap(Hbond_stat_frame);
 
@@ -230,35 +242,11 @@ int main() {
             }
 
             outfile1.close();*/
-        if (jump_id%1000==0) {
-            std::ofstream outfile01;
-            outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_TSText",std::ios::app);
-            std::ofstream outfile02;
-            outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2_TSText",std::ios::app);
-            for (int i = 0; i < temp_Hbond_stat_up.size(); i++) {
-                outfile01 << temp_Hbond_stat_up[i][0] << std::setw(10) << temp_Hbond_stat_up[i][1] << std::setw(10)
-                          << temp_Hbond_stat_up[i][2] << std::setw(10) << temp_Hbond_stat_up[i][3]
-                          << std::setw(10);
-                outfile01 << temp_Hbond_stat_up[i][4] << std::setw(10) << temp_Hbond_stat_up[i][5] << std::setw(10)
-                          << std::endl;
-            }
-            for (int i = 0; i < temp_Hbond_stat_down.size(); i++) {
-                outfile02 << temp_Hbond_stat_down[i][0] << std::setw(10) << temp_Hbond_stat_down[i][1] << std::setw(10)
-                          << temp_Hbond_stat_down[i][2] << std::setw(10) << temp_Hbond_stat_down[i][3]
-                          << std::setw(10);
-                outfile02 << temp_Hbond_stat_down[i][4] << std::setw(10) << temp_Hbond_stat_down[i][5] << std::setw(10)
-                          << std::endl;
-            }
-            temp_Hbond_stat_down.clear();
-            temp_Hbond_stat_up.clear();
-            outfile01.close();
-            outfile02.close();
-        }
     }
     std::ofstream outfile01;
-    outfile01.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_TSText",std::ios::app);
+    outfile01.open("H_Bond_O_index_transition_donor_up_1a2_raw",std::ios::app);
     std::ofstream outfile02;
-    outfile02.open("H-Bond/H_Bond_O_index_transition_donor_down_1a2_TSText",std::ios::app);
+    outfile02.open("H_Bond_O_index_transition_donor_down_1a2_raw",std::ios::app);
     for (int i = 0; i < temp_Hbond_stat_up.size(); i++) {
         outfile01 << temp_Hbond_stat_up[i][0] << std::setw(10) << temp_Hbond_stat_up[i][1] << std::setw(10)
                   << temp_Hbond_stat_up[i][2] << std::setw(10) << temp_Hbond_stat_up[i][3]
@@ -278,8 +266,6 @@ int main() {
     outfile01.close();
     outfile02.close();
     infile.close();
-
-
     //infile1.close();
     return 0;
 }

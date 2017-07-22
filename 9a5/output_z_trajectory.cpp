@@ -21,7 +21,7 @@
 #define hbond_cutoff_angle_down 135.0
 #define bond_length_number 80
 #define bond_angle_number 60
-#define z_points    320
+#define z_points    380
 #define max_sampling 160000
 #define dt 4
 #define name_parm7 "density_dis9a5.parm7"
@@ -77,19 +77,19 @@ int main() {
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_3");
+    infile.open("jump/cutoff_1a2/recrossing_index_start_finish_down_4");
     while (!infile.fail()) {
         double num[4];
         infile >> num[0] >> num[1]>>num[2]>>num[3];
-        int frame_r_st = num[1];
-        int frame_r_ed = num[2];
+        int frame_r_st = num[1]-750;
+        int frame_r_ed = num[2]+750;
         int Target_ID = num[0];
 
         int nc = frame_r_st / 10000;
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
-        if (frame_r_ed-frame_r_st>50) {
+        /*if (frame_r_ed-frame_r_st>50) {
             nc=start_nc;
             int total_frame = (start_nc) * 10000;
             int totframe_nc=nc_data.frames_number();
@@ -112,14 +112,12 @@ int main() {
                 std::cout << (frame_r-frame_r_st)*4<< std::setw(10) << O1_coor[2] << std::endl;
             }
             std::cout<<nc<<std::setw(10)<<Target_ID<<std::endl;
-        }
-        /*char name_nc[64];
+        }*/
+        char name_nc[64];
         nc=start_nc;
         int total_frame = (start_nc) * 10000;
         int totframe_nc=nc_data.frames_number();
         for (int frame_r=frame_r_st;frame_r<frame_r_ed;frame_r+=dt) {
-            int nc = start_nc;
-            int total_frame = start_nc * 10000;
             if (frame_r==frame_r_st || frame_r>=(total_frame+totframe_nc)){
                 while (total_frame+totframe_nc <= frame_r) {
                     total_frame += totframe_nc;
@@ -131,17 +129,17 @@ int main() {
             }
             sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
             nctraj nc_data(name_nc);
-            index frame = frame_r - total_frame ;
+            int frame = frame_r - total_frame ;
             O1_coor = nc_data.atom_coordinate(frame, Target_ID);
             total_wat_z[int(round((O1_coor[2] - Z_DOWN) / ((Z_UP - Z_DOWN) / z_points)))]++;
         }
         std::cout<<Target_ID<<std::endl;
-        outfile1.open("jump/cutoff_1a2/z_distribution_with_transition_narrow");
+        outfile1.open("jump/cutoff_1a2/z_distribution_with_transition_TSText");
         for (int i=0;i<z_points;i++){
             outfile1<<Z_DOWN+i*(Z_UP-Z_DOWN)/z_points<<std::setw(10)<< total_wat_z[i]<<std::endl;
         }
         outfile1.close();
-         */
+
     }
     infile.close();
     //infile1.close();

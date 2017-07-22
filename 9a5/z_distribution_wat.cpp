@@ -6,9 +6,9 @@
 #define z_axis_modify  2
 #define deviation_y_center 20
 #define deviation_x_center 20
-#define start_nc 64
-#define end_nc  100
-#define z_axis_num 160
+#define start_nc 1
+#define end_nc  5
+#define z_axis_num 380
 #define name_parm7 "density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 
@@ -25,29 +25,31 @@ int main()
 	double C_x_coor_sum = 0, C_y_coor_sum = 0;
     double C_x_coor_center, C_y_coor_center;     
     double Z_UP,Z_DOWN,Y_UP,Y_DOWN,X_UP,X_DOWN;
-	
-	amber_parm parm_nam(name_parm7);
-	nctraj data_nc("density_dis9a5_2.nc");
 
-	for( index C_index = 0 ; C_index != 1400 ; ++C_index)
-	{
-		       C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
-		       C_z_coor_sum_2 += data_nc.atom_coordinate(0, (1400+C_index))[2];
-		       C_y_coor_sum += data_nc.atom_coordinate(0, C_index)[1];
-   		       C_x_coor_sum += data_nc.atom_coordinate(0, C_index)[0];		
-	 }		    
-	 C_z_coor_average_1 = C_z_coor_sum_1/1400;
-	 C_z_coor_average_2 = C_z_coor_sum_2/1400;
-	 C_y_coor_center = C_y_coor_sum/1400;
-	 C_x_coor_center = C_x_coor_sum/1400;
-	            
+    for (int nc=start_nc;nc<=end_nc;nc++) {
+        amber_parm parm_nam(name_parm7);
+        char name_nc[64];
+        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
+        nctraj data_nc(name_nc);
+        for (index C_index = 0; C_index != 1400; ++C_index) {
+            C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
+            C_z_coor_sum_2 += data_nc.atom_coordinate(0, (1400 + C_index))[2];
+            C_y_coor_sum += data_nc.atom_coordinate(0, C_index)[1];
+            C_x_coor_sum += data_nc.atom_coordinate(0, C_index)[0];
+        }
+    }
+    C_z_coor_average_1 = C_z_coor_sum_1/(1400*(end_nc-start_nc+1));
+    C_z_coor_average_2 = C_z_coor_sum_2/(1400*(end_nc-start_nc+1));
+    C_y_coor_center = C_y_coor_sum/(1400*(end_nc-start_nc+1));
+    C_x_coor_center = C_x_coor_sum/(1400*(end_nc-start_nc+1));
+
     Z_UP = C_z_coor_average_2;
     Z_DOWN = C_z_coor_average_1;
     Y_UP = C_y_coor_center + deviation_y_center;
     Y_DOWN = C_y_coor_center - deviation_y_center;
     X_UP = C_x_coor_center + deviation_x_center ;
     X_DOWN = C_x_coor_center - deviation_x_center ;
-    
+
     std::cout << "Z_UP: " << Z_UP <<std::endl;
     std::cout << "Z_DOWN: " << Z_DOWN <<std::endl;
     std::cout << "X_UP: " << X_UP <<std::endl;
@@ -93,9 +95,6 @@ int main()
 		}
 		outfile.close();
 	}
-	
-	
-
 
 	return 0;
 }

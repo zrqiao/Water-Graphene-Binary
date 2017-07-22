@@ -84,78 +84,179 @@ int main() {
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_narrow");
-    int jump_count=2;
-    double num[6];
+    infile.open("H-Bond/H_Bond_O_index_transition_donor_up_1a2_TSText");
+    std::ifstream infile0;
+    infile0.open("jump/cutoff_1a2/recrossing_index_start_finish_down_4");
+    int jump_count;
+    double num[6],num0[6];
     infile >> num[0] >> num[1] >> num[2] >> num[3] >> num[4] >> num[5];
+    jump_count=num[0];
     int Target_ID,nc,frame,HB_ID1,HB_ID2;
     std:: ofstream outfile;
-    outfile.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2_narrow");
-    while (!infile.fail()) {
-        int temp_H1=0,temp_H2=0;//H1 lower H2 upper
-        bool fixed= false;
-        while (!infile.fail()) {
-            if (jump_count!=num[0]){break;}
-            else {
-                nc = num[2];
-                frame = num[3];
-                Target_ID = num[1];
-                HB_ID1 = num[4];
-                HB_ID2 = num[5];
-            }
-            if (!fixed) {//判断是否为参照点
+    outfile.open("H-Bond/H_Bond_O_index_transition_donor_up_zeropoint_1a2_TST");
+    std::vector<int> zeropoint_stat(6,0);
+    int frame0=0,framee=0;
+    int jump_id=0;
+    while (!infile0.fail()) {
+        infile0 >> num0[0] >> num0[1]>>num0[2]>>num0[3];
+        int frame_r_st = num0[1];
+        int frame_r_ed = num0[2];
+        int Target_ID = num0[0];
+        int Direction = num0[3];
+        if (jump_id==jump_count) {
+            int temp_H1 = 0, temp_H2 = 0;//H1 lower H2 upper
+            int O1_ID=-1,O2_ID=-1;
+            int nc0=-1,frame0=-1;
+            char name_nc[64];
+            nc = start_nc;
+            int total_frame = (start_nc) * 10000;
+            int totframe_nc = nc_data.frames_number();
+            while (total_frame + totframe_nc <= frame_r_st) {
+                total_frame += totframe_nc;
+                nc++;
                 sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
                 nctraj nc_data(name_nc);
-                O1_coor = nc_data.atom_coordinate(frame, Target_ID);
-                if (O1_coor[2] > (Z_DOWN + Z_UP) / 2 - 0.02 && O1_coor[2] < (Z_DOWN + Z_UP) / 2 + 0.03) {
-                    if (HB_ID1 * HB_ID2 < 0) {
-                        if (HB_ID1 == -1 && judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1) {
-                            temp_H1 = 2;
-                            temp_H2 = 1;
-                            fixed = true;
-                        } else if (HB_ID2 == -1 &&
-                                   judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == -1) {
-                            temp_H1 = 1;
-                            temp_H2 = 2;
-                            fixed = true;
-                        } else if (HB_ID1 == -1 &&
-                                   judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == 1) {
-                            temp_H1 = 1;
-                            temp_H2 = 2;
-                            fixed = true;
-                        } else if (HB_ID2 == -1 &&
-                                   judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == 1) {
-                            temp_H1 = 2;
-                            temp_H2 = 1;
-                            fixed = true;
-                        }
-                    } else if (HB_ID1 != -1 && HB_ID2 != -1) {
-                        if (judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == -1 &&
-                            judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == 1) {
-                            temp_H1 = 1;
-                            temp_H2 = 2;
-                            fixed = true;
-                        } else if (judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1 &&
-                                   judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == 1) {
-                            temp_H1 = 2;
-                            temp_H2 = 1;
-                            fixed = true;
+                totframe_nc = nc_data.frames_number();
+            }
+            int frame_st = frame_r_st - total_frame;
+            int nc_st = nc;
+            nc = start_nc;
+            total_frame = (start_nc) * 10000;
+            totframe_nc = nc_data.frames_number();
+            while (total_frame + totframe_nc <= frame_r_ed) {
+                total_frame += totframe_nc;
+                nc++;
+                sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
+                nctraj nc_data(name_nc);
+                totframe_nc = nc_data.frames_number();
+            }
+            int frame_ed = frame_r_ed - total_frame;
+            //std::cout << frame_st << std::setw(10) << frame_ed << std::endl;
+            int nc_ed = nc;
+            bool fixed = false,fixed_HB1=false,fixed_HB2=false;
+            while (!infile.fail()) {
+                if (jump_count != num[0]) {
+                    break;
+                } else {
+                    nc = num[2];
+                    frame = num[3];
+                    Target_ID = num[1];
+                    HB_ID1 = num[4];
+                    HB_ID2 = num[5];
+                }
+                if (!fixed && ((frame >= frame_st && frame <= frame_ed)||(nc_st<nc_ed && frame>=frame_st)||(nc_st<nc_ed && frame<=frame_ed))) {//判断是否为参照点
+                    sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
+                    nctraj nc_data(name_nc);
+                    O1_coor = nc_data.atom_coordinate(frame, Target_ID);
+                    if (O1_coor[2] > (Z_DOWN + Z_UP) / 2 - 0.06 && O1_coor[2] < (Z_DOWN + Z_UP) / 2 + 0.07) {
+                        nc0 = nc;
+                        frame0 = frame;
+                        fixed = true;
+                        /*if (HB_ID1 * HB_ID2 < 0) {
+                            if (HB_ID1 == -1 &&
+                                judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1) {
+                                temp_H1 = 2;
+                                temp_H2 = 1;
+                                fixed = true;
+                            } else if (HB_ID2 == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == -1) {
+                                temp_H1 = 1;
+                                temp_H2 = 2;
+                                fixed = true;
+                            } else if (HB_ID1 == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 1;
+                                temp_H2 = 2;
+                                fixed = true;
+                            } else if (HB_ID2 == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 2;
+                                temp_H2 = 1;
+                                fixed = true;
+                            }
+                        } else if (HB_ID1 != -1 && HB_ID2 != -1) {
+                            if (judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == -1 &&
+                                judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 1;
+                                temp_H2 = 2;
+                                fixed = true;
+                            } else if (judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 2;
+                                temp_H2 = 1;
+                                fixed = true;
+                            }
+                        }*/
+                    }
+                }
+                if (!(fixed_HB1 && fixed_HB2) && ((frame >= frame_st && frame <= frame_ed)||(nc_st<nc_ed && frame>=frame_st)||(nc_st<nc_ed && frame<=frame_ed))) {//判断是否为参照点 HB1
+                    sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
+                    nctraj nc_data(name_nc);
+                    O1_coor = nc_data.atom_coordinate(frame, Target_ID);
+                    if (O1_coor[2] > (Z_DOWN + Z_UP) / 2 - 0.2 && O1_coor[2] < (Z_DOWN + Z_UP) / 2 + 0.2) {
+                        /*if (HB_ID1 * HB_ID2 < 0) {
+                            if (HB_ID1 == -1 &&
+                                judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1) {
+                                O1_ID=HB_ID2;
+                                temp_H1 = 2;
+                                temp_H2 = 1;
+                                fixed_HB1 = true;
+                            } else if (HB_ID2 == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == -1) {
+                                temp_H1 = 1;
+                                temp_H2 = 2;
+                                O1_ID=HB_ID1;
+                                fixed_HB1 = true;
+                            } else if (HB_ID1 == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 1;
+                                temp_H2 = 2;
+                                O2_ID=HB_ID2;
+                                fixed_HB2 = true;
+                            } else if (HB_ID2 == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 2;
+                                temp_H2 = 1;
+                                O2_ID=HB_ID1;
+                                fixed_HB2 = true;
+                            }
+                        } else */if (HB_ID1 != -1 && HB_ID2 != -1) {
+                            if (judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == -1 &&
+                                judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 1;
+                                temp_H2 = 2;
+                                O1_ID=HB_ID1;
+                                O2_ID=HB_ID2;
+                                fixed_HB1 = true;
+                                fixed_HB2 = true;
+                            } else if (judge_layer(nc_data.atom_coordinate(frame, HB_ID2), Z_DOWN, Z_UP) == -1 &&
+                                       judge_layer(nc_data.atom_coordinate(frame, HB_ID1), Z_DOWN, Z_UP) == 1) {
+                                temp_H1 = 2;
+                                temp_H2 = 1;
+                                O1_ID=HB_ID2;
+                                O2_ID=HB_ID1;
+                                fixed_HB1 = true;
+                                fixed_HB2 = true;
+                            }
                         }
                     }
                 }
-                if (fixed) {
-                    outfile << jump_count << std::setw(10) << Target_ID << std::setw(10) << nc << std::setw(10) << frame
-                            << std::setw(10) << temp_H1 << std::setw(10) << temp_H2 << std::endl;
+                if (!infile.fail()) {
+                    infile >> num[0] >> num[1] >> num[2] >> num[3] >> num[4] >> num[5];
                 }
+                else { break; }
+                //std::cout<<Target_ID<<std::setw(10)<<frame<<std::endl;
             }
-            if (! infile.fail()) {
-                infile >> num[0] >> num[1] >> num[2] >> num[3] >> num[4] >> num[5];
+            if (fixed && fixed_HB1 &&fixed_HB2) {
+                outfile << jump_count << std::setw(10) << Target_ID << std::setw(10) << nc0 << std::setw(10)
+                        << frame0 << std::setw(10) << temp_H1 << std::setw(10) << temp_H2
+                        <<std::setw(10)<<O1_ID<<std::setw(10)<<O2_ID<< std::endl;
             }
-            else {break;}
-            //std::cout<<Target_ID<<std::setw(10)<<frame<<std::endl;
+            jump_count = num[0];
+            std::cout << jump_id << std::endl;
         }
-        jump_count=num[0];
-        std::cout<<jump_count<<std::endl;
+        jump_id++;
+        //std::cout<<jump_id<<std::endl;
     }
     infile.close();
     outfile.close();
