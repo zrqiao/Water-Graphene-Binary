@@ -8,13 +8,14 @@
 #define width_transition 1.2
 #define deviation_y_center 26
 #define deviation_x_center 26
-#define start_nc 37
-#define end_nc  100
+#define start_nc 1
+#define end_nc  5
 //~ #define relaxation_time 25
 #define name_parm7 "density_dis9a5.parm7" 
 #define jump_time 5000
 #define max_transition_time 10000
-#define dt 20
+#define dt 5
+#define ntwx 16
 //~ #define name_nc "water_ion_graphene_10a5"
 std::vector<std::vector<int>>  pick_frame(int frame_start, int  frame_end, std::vector<double>   XYZ_limit, int o_wat_id);
 std::vector<std::vector<int>>  calc_jump(std::vector<std::vector<int>> condensed_frames);
@@ -24,11 +25,11 @@ int main()
 	std::vector<int*> jump_coor;
 	std::ofstream outfile;
 	std::ofstream outfile1;
-	outfile1.open("jump/cutoff_1a2/find_jump_coor_down");
+	outfile1.open("find_jump_coor_down");
 	std::ofstream outfile11;
-	outfile11.open("jump/cutoff_1a2/find_jump_coor_up");
+	outfile11.open("find_jump_coor_up");
 	std::ofstream outfile2;
-	outfile2.open("jump/cutoff_1a2/transition_path_index_start_finish_down");
+	outfile2.open("transition_path_index_start_finish_down");
 	std::cout << "program to calculate the molecules that have jumped" << "\n" << std::endl;
 	std::vector<int> jump_time_distribution(jump_time,0);
 	typedef std::vector<double>::size_type index;
@@ -45,7 +46,7 @@ int main()
     for (int nc=start_nc;nc<=end_nc;nc++) {
         amber_parm parm_nam(name_parm7);
         char name_nc[64];
-        sprintf(name_nc, "nc/density_dis9a5_%d.nc",nc);
+        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
         nctraj data_nc(name_nc);
         for (index C_index = 0; C_index != 1400; ++C_index) {
             C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
@@ -112,15 +113,24 @@ int main()
 			calc_distribution(jump_stat,transitionpath_time_distribution);
 			jump_stat.clear();
 		}
-
     }
-	for(index i = 0; i < transitionpath_time_distribution.size(); i += 1)
+	int frame_in_total_nc=0;
+	for(int nc = start_nc; nc  != end_nc+1; ++nc)
 	{
-		//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
-		outfile.open("jump/cutoff_1a2/jump_time_distribution");
-		outfile<< i*dt<<std::setw(15) <<transitionpath_time_distribution[i]<<std::setw(15)<< std::endl;
-		outfile.close();
+		char name_nc[64];
+		sprintf(name_nc, "density_dis9a5_%d.nc",nc);
+		amber_parm parm_name(name_parm7);
+		nctraj nc_data(name_nc);
+		std::vector<double>  o_coor;
+		int frame_this_nc = nc_data.frames_number();
+		frame_in_total_nc = frame_in_total_nc + frame_this_nc;
 	}
+    outfile.open("jump_time_distribution");
+	for(index i = 0; i < transitionpath_time_distribution.size(); i += 1) {
+		//~ outfile <<std::setw(15) <<i<<std::setw(15)<<count_all_water[i] << std::endl;
+		outfile<< i*ntwx*dt<<std::setw(15) <<transitionpath_time_distribution[i]*1000/(frame_in_total_nc*ntwx)<<std::setw(15)<< std::endl;
+	}
+    outfile.close();
 	//~ std::ofstream outfile;
 
 
@@ -174,11 +184,11 @@ std::vector<std::vector<int>>  Reduce(std::vector<std::vector<int>> frame_sta)
 std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::vector<double>  XYZ_limit, int o_wat_id) {
 	std::vector<std::vector<int>> frame_in_graphene;
 	std::vector<std::vector<int>> condensed_state_frames;
-	int frame_in_total_nc = start_nc*10000;
+	int frame_in_total_nc = 0;
     for(int nc = start_nc; nc  != end_nc+1; ++nc)
     {
         char name_nc[64];
-        sprintf(name_nc, "nc/density_dis9a5_%d.nc",nc);
+        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
 		amber_parm parm_name(name_parm7);
         nctraj nc_data(name_nc);
         std::vector<double>  o_coor;
@@ -204,7 +214,7 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
 				 }
 				 frame_in_graphene.push_back(bbb);
 			 }
-	     }
+		}
 	    frame_in_total_nc = frame_in_total_nc + frame_this_nc;
     }
     //~ if(frame_in_graphene.size() != 0 )
@@ -222,7 +232,7 @@ std::vector<std::vector<int>>  pick_frame(int frame_start, int frame_end, std::v
 std::vector<std::vector<int>>  calc_jump( std::vector<std::vector<int>> condensed_state_frames){
 	std::vector<std::vector<int>> jump_stat;
 	std::vector<int> temp_jump;// 0-startframe 1-endframe 2-transitiontime 3-direction
-	for (int i=2;i<condensed_state_frames.size()-1;i++){
+	for (int i=1;i<condensed_state_frames.size()-1;i++){
 		if (condensed_state_frames[i][0]==0){
 			if(condensed_state_frames[i-1][3]+dt==condensed_state_frames[i][1]&&condensed_state_frames[i][3]+dt==condensed_state_frames[i+1][1]){//必须完全连接
 				if (condensed_state_frames[i-1][0]*condensed_state_frames[i+1][0]==-1){

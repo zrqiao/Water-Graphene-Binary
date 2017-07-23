@@ -14,8 +14,8 @@ set(SOURCE_FILES
         #9a5/find_jump_reverse.cpp
         #9a5/find_jump_reverse_start.cpp
         #9a5/jump_time_distribution.cpp
-        9a5/jumptime_with_transition_test.cpp
-
+        #9a5/jumptime_with_transition_test.cpp
+        9a5/recrossing_frequency_during_transition.cpp
         #9a5/stabletime_distribution_during_transition
         )
 add_executable(stable_time ${SOURCE_FILES})
@@ -68,12 +68,14 @@ set(SOURCE_FILES2
         #9a5/Hbond_transition_averHbond_UL.cpp
         )
 
-add_executable(jump ${SOURCE_FILES})
+add_executable(jump ${SOURCE_FILES} )
 add_executable(cavity ${SOURCE_FILES1})
 add_executable(H-Bond ${SOURCE_FILES2} )
-add_executable(H-Bond_Hdonor_index_forH1H2_read_1a2_4 9a5/H-Bond_Hdonor_index_forH1H2_read)
+add_executable(H-Bond_Hdonor_index_forH1H2_read_1a2_TST 9a5/H-Bond_Hdonor_index_forH1H2_read)
 add_executable(zeropoint 9a5/H-Bond_transitionCV_getzeropoint.cpp)
 add_executable(Bulk_water water/Find_cavity_in_bulk_water.cpp)
+add_executable(z_distribution 9a5/z_distribution_wat.cpp)
+add_executable(calc_jump 9a5/jumptime_with_transition_test.cpp)
 
 include_directories(/usr/local/include)
 find_package(MPI)
@@ -85,5 +87,7 @@ target_link_libraries(cavity -lnetcdf_c++ )
 target_link_libraries(H-Bond -lnetcdf_c++)
 target_link_libraries(jump -lnetcdf_c++)
 target_link_libraries(Bulk_water -lnetcdf_c++)
-target_link_libraries(H-Bond_Hdonor_index_forH1H2_read_1a2_4 -lnetcdf_c++)
+target_link_libraries(H-Bond_Hdonor_index_forH1H2_read_1a2_TST -lnetcdf_c++)
 target_link_libraries(zeropoint -lnetcdf_c++)
+target_link_libraries(z_distribution -lnetcdf_c++)
+target_link_libraries(calc_jump -lnetcdf_c++)
