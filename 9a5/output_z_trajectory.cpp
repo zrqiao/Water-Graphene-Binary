@@ -89,7 +89,7 @@ int main() {
         sprintf(name_nc, "nc/density_dis9a5_%d.nc", nc);
         nctraj nc_data(name_nc);
         std::vector<double> O1_coor, O2_coor, H1_coor, H2_coor;
-        /*if (frame_r_ed-frame_r_st>50) {
+        if (frame_r_ed-frame_r_st>50) {
             nc=start_nc;
             int total_frame = (start_nc) * 10000;
             int totframe_nc=nc_data.frames_number();
@@ -112,8 +112,8 @@ int main() {
                 std::cout << (frame_r-frame_r_st)*4<< std::setw(10) << O1_coor[2] << std::endl;
             }
             std::cout<<nc<<std::setw(10)<<Target_ID<<std::endl;
-        }*/
-        char name_nc[64];
+        }
+        /*char name_nc[64];
         nc=start_nc;
         int total_frame = (start_nc) * 10000;
         int totframe_nc=nc_data.frames_number();
@@ -138,7 +138,7 @@ int main() {
         for (int i=0;i<z_points;i++){
             outfile1<<Z_DOWN+i*(Z_UP-Z_DOWN)/z_points<<std::setw(10)<< total_wat_z[i]<<std::endl;
         }
-        outfile1.close();
+        outfile1.close();*/
 
     }
     infile.close();

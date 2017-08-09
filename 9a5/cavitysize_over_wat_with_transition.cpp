@@ -12,7 +12,7 @@
 #define deviation_y_center 26
 #define deviation_x_center 26
 #define start_nc 37
-#define end_nc  52
+#define end_nc  100
 #define dt 4
 #define relaxation_time 4
 #define name_parm7 "nc/density_dis9a5.parm7"
@@ -23,7 +23,7 @@
 #define max_size 2000
 #define max_life 10000
 #define max_circumference 400
-#define z_points    160
+#define z_points    380
 #define large_cutoff 5.4
 #define rapid_change_constant 5
 static int x_points = deviation_x_center * 2 / dx;
@@ -80,13 +80,15 @@ int calc_cavity_size(int &last_step_size, int &circumference, int x, int y, int 
 }
 int main() {
     std::ifstream infile;
-    infile.open("jump/cutoff_1a3/transiton_stat_fastinput");
+    infile.open("jump/cutoff_1a2/transiton_stat_fastinput");
     typedef std::vector<double>::size_type index;
     std::cout << "program to find size-z correlation" << "\n" << std::endl;
 
     double max_cavity_index=0;
     std::vector<double> cavity_size_sum(z_points,0);
     std::vector<double> large_cavity_probability(z_points,0);
+    std::vector<double> cavity_size_sum_down(z_points,0);
+    std::vector<double> large_cavity_probability_down(z_points,0);
     std::vector<double> total_wat_z(z_points,0);
     std::vector<int> active_cavity_index;
     std::vector<int> new_active_index;
@@ -109,6 +111,22 @@ int main() {
     static double **sum_matrix = new double *[x_points];
     for (int i = 0; i < x_points; i++) {
         sum_matrix[i] = new double[y_points];
+    }
+    static double **density_matrix_down = new double *[x_points];
+    for (int i = 0; i < x_points; i++) {
+        density_matrix_down[i] = new double[y_points];
+    }
+    static int **judge_matrix_down = new int *[x_points];
+    for (int i = 0; i < x_points; i++) {
+        judge_matrix_down[i] = new int[y_points];
+    }
+    static int **calc_matrix_down = new int *[x_points];
+    for (int i = 0; i < x_points; i++) {
+        calc_matrix_down[i] = new int[y_points];
+    }
+    static double **sum_matrix_down = new double *[x_points];
+    for (int i = 0; i < x_points; i++) {
+        sum_matrix_down[i] = new double[y_points];
     }
     static std::vector<double> cavity_by_index;
     std::vector<int*> temp_coordinates;
@@ -175,6 +193,9 @@ int main() {
                         density_matrix[i][j] = 0;
                         judge_matrix[i][j] = 0;
                         calc_matrix[i][j] = 0;
+                        density_matrix_down[i][j] = 0;
+                        judge_matrix_down[i][j] = 0;
+                        calc_matrix_down[i][j] = 0;
                         //初始化
                     }
                 }
@@ -211,6 +232,21 @@ int main() {
                             }
                         }
                     }
+                    for (index m = 0; m != O_WAT_IN_C_id_lowerlayer.size(); ++m) {
+                        temp_O_X = 0;
+                        temp_O_Y = 0;
+                        for (int f = frame_t; f < frame_t + dt; f++) {
+                            temp_O_X += (nc_data.atom_coordinate(f, O_WAT_IN_C_id_lowerlayer[m])[0] / dt);
+                            //std::cout<<temp_O_X<<'\n'<<std::endl;
+                            temp_O_Y += (nc_data.atom_coordinate(f, O_WAT_IN_C_id_lowerlayer[m])[1] / dt);
+                        }
+                        for (int i = 0; i < x_points; i++) {
+                            for (int j = 0; j < y_points; j++) {
+                                density_matrix_down[i][j] += density(X_DOWN + i * dx, Y_DOWN + j * dx, temp_O_X,
+                                                                temp_O_Y)*dt/relaxation_time;//计算密度分布函数
+                            }
+                        }
+                    }
                 }
                 for (int i=0; i<x_points;i++){
                     for(int j=0;j<y_points;j++){
@@ -219,6 +255,20 @@ int main() {
                         }
                         else {
                             judge_matrix[i][j] = 0;
+                        }
+                        //通过密度矩阵判断是否为空穴
+                        //std::cout<<judge_matrix[i][j]<<' ';
+                        //sum_matrix[i][j]+=judge_matrix[i][j];
+                    }
+                    //std::cout<<std::endl;
+                }
+                for (int i=0; i<x_points;i++){
+                    for(int j=0;j<y_points;j++){
+                        if (density_matrix_down[i][j]<cavity_cut){
+                            judge_matrix_down[i][j]=1;
+                        }
+                        else {
+                            judge_matrix_down[i][j] = 0;
                         }
                         //通过密度矩阵判断是否为空穴
                         //std::cout<<judge_matrix[i][j]<<' ';
@@ -243,6 +293,7 @@ int main() {
                         for (int i = 0; i < x_points; i++) {
                             for (int j = 0; j < y_points; j++) {
                                 calc_matrix[i][j] = 0;
+                                calc_matrix_down[i][j] = 0;
                             }
                         }
                         O1_coor = nc_data.atom_coordinate(frame, Target_ID);
@@ -258,6 +309,17 @@ int main() {
                             std::cout<<size<<std::endl;
                             if (size >= large_cutoff)
                                 large_cavity_probability[int(round((O1_coor[2] - Z_DOWN) / (dz)))]++;
+                        }
+                        if (0<=x&&x<x_points && 0<=y&&y<y_points) {
+                            //std::cout << x <<std::setw(5)<<y<< std::endl;
+                            cavity_circ = 0;
+                            cavity_size = 0;
+                            calc_cavity_size(cavity_circ, cavity_size, x,y , judge_matrix_down, calc_matrix_down);
+                            double size = cavity_size * pow(dx, 2);
+                            cavity_size_sum_down[int(round((O1_coor[2] - Z_DOWN) / (dz)))] += size;
+                            std::cout<<size<<std::endl;
+                            if (size >= large_cutoff)
+                                large_cavity_probability_down[int(round((O1_coor[2] - Z_DOWN) / (dz)))]++;
                         }
                     }
                     if (!infile.fail()){
@@ -276,8 +338,10 @@ int main() {
         }
         std::ofstream outfile;
         std::ofstream outfile2;
-        outfile.open("cavity_jump_correlation/cutoff_1a3_average_cavitysize_by_z");
-        outfile2.open("cavity_jump_correlation/cutoff_1a3_largecavity_prob_by_z");
+        std::ofstream outfile3;
+        std::ofstream outfile4;
+        outfile.open("cavity_jump_correlation/cutoff_1a2_average_cavitysize_by_z");
+        outfile2.open("cavity_jump_correlation/cutoff_1a2_largecavity_prob_by_z");
         for(int i =1; i !=z_points; ++i)
         {
             outfile<<Z_DOWN+i*dz<<std::setw(14)<<cavity_size_sum[i]/total_wat_z[i]<<std::endl;
@@ -285,6 +349,15 @@ int main() {
         }
         outfile.close();
         outfile2.close();
+        outfile3.open("cavity_jump_correlation/cutoff_1a2_average_cavitysize_down_by_z");
+        outfile4.open("cavity_jump_correlation/cutoff_1a2_largecavity_prob_down_by_z");
+        for(int i =1; i !=z_points; ++i)
+        {
+            outfile3<<Z_DOWN+i*dz<<std::setw(14)<<cavity_size_sum_down[i]/total_wat_z[i]<<std::endl;
+            outfile4<<Z_DOWN+i*dz<<std::setw(14)<<large_cavity_probability_down[i]/total_wat_z[i]<<std::endl;
+        }
+        outfile3.close();
+        outfile4.close();
     }
     /*outfile.open("calc_cavity");
     for (index i=0; i<max_size;i++){

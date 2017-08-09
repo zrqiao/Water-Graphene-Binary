@@ -15,8 +15,9 @@ set(SOURCE_FILES
         #9a5/find_jump_reverse_start.cpp
         #9a5/jump_time_distribution.cpp
         #9a5/jumptime_with_transition_test.cpp
-        9a5/recrossing_frequency_during_transition.cpp
+        #9a5/recrossing_frequency_during_transition.cpp
         #9a5/stabletime_distribution_during_transition
+        9a5/jumptime_transition_WAT.cpp
         )
 add_executable(stable_time ${SOURCE_FILES})
 target_link_libraries(stable_time -lnetcdf_c++)
@@ -37,9 +38,9 @@ set(SOURCE_Correlation
         #9a5/find_jump_reverse_start.cpp
         #9a5/jump_time_distribution.cpp
         #9a5/Hbond_x_z_transiton_correlation.cpp
-        #9a5/cavitysize_over_wat_with_transition.cpp
+        9a5/cavitysize_over_wat_with_transition.cpp
         #9a5/cavity_size_over_water.cpp
-        9a5/cavity_size_over_water_dummy.cpp
+        #9a5/cavity_size_over_water_dummy.cpp
         )
 add_executable(J-C_correlation ${SOURCE_Correlation})
 target_link_libraries(J-C_correlation -lnetcdf_c++)
@@ -48,13 +49,14 @@ set(SOURCE_FILES1
         9a5/enthaply/amber_parm_1.0.hpp
         #
 
-        9a5/Cavity.cpp
+        #9a5/Cavity.cpp
         #9a5/cavity_size_change-distribution.cpp
         #9a5/H-Bond_with_transition.cpp
         #water/Find_cavity_in_bulk_water.cpp 9a5/output_z_trajectory.cpp
 
         #9a5/format_translation_frame-nc.cpp
-        9a5/H-Bond_transitionCV_getzeropoint.cpp)
+        9a5/H-Bond_transitionCV_getzeropoint.cpp
+        )
 set(SOURCE_FILES2
         9a5/enthaply/amber_netcdf.hpp
         9a5/enthaply/amber_parm_1.0.hpp

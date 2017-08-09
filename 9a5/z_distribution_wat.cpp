@@ -6,10 +6,10 @@
 #define z_axis_modify  2
 #define deviation_y_center 20
 #define deviation_x_center 20
-#define start_nc 1
-#define end_nc  5
+#define start_nc 37
+#define end_nc  52
 #define z_axis_num 380
-#define name_parm7 "density_dis9a5.parm7"
+#define name_parm7 "nc/density_dis9a5.parm7"
 //~ #define name_nc "water_ion_graphene_10a5"
 
 int main()
@@ -18,7 +18,7 @@ int main()
 	std::cout << "program to calculate the Z_axis distribution"<< "\n"<< std::endl;
 	std::cout << "calculate XYZ_limit" << std::endl;
 	
-	std::vector<int> z_axis_dis(z_axis_num,0);
+	std::vector<double> z_axis_dis(z_axis_num,0);
 	
     double C_z_coor_sum_1 = 0, C_z_coor_sum_2 = 0;
     double C_z_coor_average_1, C_z_coor_average_2;	
@@ -29,7 +29,7 @@ int main()
     for (int nc=start_nc;nc<=end_nc;nc++) {
         amber_parm parm_nam(name_parm7);
         char name_nc[64];
-        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
+        sprintf(name_nc, "nc/density_dis9a5_%d.nc",nc);
         nctraj data_nc(name_nc);
         for (index C_index = 0; C_index != 1400; ++C_index) {
             C_z_coor_sum_1 += data_nc.atom_coordinate(0, C_index)[2];
@@ -56,11 +56,11 @@ int main()
     std::cout << "X_DOWN: " << X_DOWN <<std::endl;
     std::cout << "Y_UP: " << Y_UP <<std::endl;
     std::cout << "Y_DOWN: " << Y_DOWN <<std::endl;
-    
+    int frame_sum=0;
 	for(int nc = start_nc; nc  != end_nc+1; ++nc)
 	{
         char name_nc[64];
-        sprintf(name_nc, "density_dis9a5_%d.nc",nc);
+        sprintf(name_nc, "nc/density_dis9a5_%d.nc",nc);
 		amber_parm parm_name(name_parm7);
         nctraj nc_data(name_nc);
         printf("nc_file = %d\n",nc);
@@ -81,6 +81,7 @@ int main()
 				}
 			}
 		   frame += 10;
+           frame_sum++;
 	   }
 
 		std::ofstream outfile;
@@ -90,8 +91,8 @@ int main()
 
 		for(index i = 0; i != z_axis_dis.size(); ++i)
 		{
-			outfile <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i] << std::endl;
-			std::cout <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i] << std::endl;
+			outfile <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i]/frame_sum << std::endl;
+			std::cout <<std::setw(15) <<i<<std::setw(15)<<z_axis_dis[i]/frame_sum << std::endl;
 		}
 		outfile.close();
 	}

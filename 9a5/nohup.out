@@ -28226,3 +28226,12 @@ Y_DOWN: 32.9517
 17803    931118
 17803    959230
 17803    960926
+Warning: Permanently added '[111.202.89.211]:2222' (RSA) to the list of known hosts.
+Warning: Permanently added '[120.92.85.216]:2222' (RSA) to the list of known hosts.
+Warning: Permanently added '[111.202.89.211]:2222' (RSA) to the list of known hosts.
+packet_write_wait: Connection to 111.202.89.211 port 2222: Broken pipe
+packet_write_wait: Connection to 111.202.89.211 port 2222: Broken pipe
+lost connection
+lost connection
+packet_write_wait: Connection to 120.92.85.216 port 2222: Broken pipe
+lost connection

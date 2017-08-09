@@ -1,7 +1,7 @@
 import operator
-raw=open("jump/cutoff_1a3/"
+raw=open("jump/cutoff_1a2/"
    "transition_path_stat")
-out=open("jump/cutoff_1a3/"
+out=open("jump/cutoff_1a2/"
    "transiton_stat_fastinput",'wb')
 m=sorted(map(lambda x:map(int,[t for t
    in x.split()if t!='']),raw.readlines()),
