@@ -1,12 +1,13 @@
 //
 // Created by utena on 17-10-15.
 //
-#include "amber_netcdf.hpp"
-#include "amber_parm_1.0.hpp"
-#include "vector_calc.h"
+#include "../amber_netcdf.hpp"
+#include "../amber_parm_1.0.hpp"
+#include "../vector_calc.h"
+#include "Identification_of_grid_water.hpp"
 using namespace std;
-#define start_nc 0
-#define end_nc  14
+#define start_nc 14
+#define end_nc  20
 #define select_boundary 3.55
 #define hbond_cutoff_up 3.5
 #define hbond_cutoff_down 2.0
@@ -62,20 +63,21 @@ int main() {
         nctraj nc_data(name_nc);
         int tot_frame=nc_data.frames_number();
         for (index frame = 0; frame < tot_frame; frame += 100) {
-            for (index C_index = 0; C_index != C_NUM; ++C_index) {
-                C_y_coor_sum += nc_data.atom_coordinate(frame, C_index)[1];
-                C_x_coor_sum += nc_data.atom_coordinate(frame, C_index)[0];
+            for (index O_index = 0; O_index != O_WAT_id.size(); ++O_index) {
+                C_y_coor_sum += nc_data.atom_coordinate(frame, O_WAT_id[O_index])[1];
+                C_x_coor_sum += nc_data.atom_coordinate(frame, O_WAT_id[O_index])[0];
             }
         }
-        C_y_coor_center = C_y_coor_sum / (C_NUM * (tot_frame/100));
-        C_x_coor_center = C_x_coor_sum / (C_NUM * (tot_frame/100));
+        C_y_coor_center = C_y_coor_sum / ( O_WAT_id.size()* (tot_frame/100));
+        C_x_coor_center = C_x_coor_sum / ( O_WAT_id.size()* (tot_frame/100));
 
         double Y_UP = C_y_coor_center + y_length/2;
         double Y_DOWN = C_y_coor_center - y_length/2;
         double X_UP = C_x_coor_center + x_length/2;
         double X_DOWN = C_x_coor_center - x_length/2;
-        X_DOWN=-0.5;
-        Y_DOWN=-0.5;
+        X_DOWN=-0.4;
+        Y_DOWN=-0.4;
+
         std::cout << "X_UP: " << X_UP << std::endl;
         std::cout << "X_DOWN: " << X_DOWN << std::endl;
         std::cout << "Y_UP: " << Y_UP << std::endl;
@@ -85,7 +87,7 @@ int main() {
         int y_points=ceil(y_length/select_boundary)+1;
         for (index frame = 0; frame < nc_data.frames_number(); frame += dt) {
             std::cout<<nc<<' '<<frame<<std::endl;
-            std::vector < std::vector < std::vector < int > > > xypoints(x_points + 1, std::vector < std::vector < int >> (y_points + 1, std::vector<int>(0)));
+            std::vector < std::vector < std::vector < int > > > xypoints(x_points+1, std::vector < std::vector < int >> (y_points+1, std::vector<int>(0)));
             std::vector<std::vector<int>> check_connection(O_WAT_id.size(),std::vector<int>(O_WAT_id.size(),0));
             std::vector<std::vector<int>> connection_data(O_WAT_id.size(),std::vector<int>(2,-1));
             if (frame % 100 == 0) std::cout << frame << std::endl;
@@ -101,11 +103,12 @@ int main() {
                 xypoints[x_location + 1][y_location + 1].push_back(i);
             }
             for (int i = 0; i < x_points; i++) {
-                xypoints[i][0].insert(xypoints[i][0].end(), xypoints[i][y_points].begin(), xypoints[i][y_points].end());
+                xypoints[i][0].insert(xypoints[i][0].end(), xypoints[i][y_points-1].begin(), xypoints[i][y_points-1].end());
             }
             for (int j = 0; j < y_points; j++) {
-                xypoints[0][j].insert(xypoints[0][j].end(), xypoints[x_points][j].begin(), xypoints[x_points][j].end());
+                xypoints[0][j].insert(xypoints[0][j].end(), xypoints[x_points-1][j].begin(), xypoints[x_points-1][j].end());
             }
+            xypoints[0][0].insert(xypoints[0][0].end(), xypoints[x_points-1][y_points-1].begin(), xypoints[x_points-1][y_points-1].end());
             for (int i = 0; i < x_points; i++) {
                 for (int j = 0; j < y_points; j++) {
                     for (vector<int>::iterator iter1 = xypoints[i][j].begin(); iter1 != xypoints[i][j].end(); iter1++) {
@@ -128,32 +131,36 @@ int main() {
                                 std::vector<double> O_coor_period(3,0);
                                 if (i==0){
 
-                                    if (O2_coor[0]>O1_coor[0]){
+                                    if (O2_coor[0]-O1_coor[0]>10){
                                         O_coor_period=O2_coor;
                                         O_coor_period[0]-=x_length;
                                     }
-                                    else if (O2_coor[0]<O1_coor[0]){
+                                    else if (O2_coor[0]-O1_coor[0]<-10){
                                         O_coor_period=O2_coor;
                                         O_coor_period[0]+=x_length;
                                     }
                                     if (judge_H_Bond(O1_coor, H1_coor, O_coor_period)) {
                                         connection_data[wat1_i][0]=O_WAT_id[wat2_i];
+                                        //std::cout<<O_WAT_id[wat1_i]<<"   "<<O_WAT_id[wat2_i]<<"  ";
                                     }
                                     if (judge_H_Bond(O1_coor, H2_coor, O_coor_period)) {
                                         connection_data[wat1_i][1]=O_WAT_id[wat2_i];
+                                        //std::cout<<O_WAT_id[wat1_i]<<"   "<<O_WAT_id[wat2_i]<<"  ";
                                     }
                                 }
                                 if (j==0){
-                                    if (O2_coor[1]>O1_coor[1]){
+                                    if (O2_coor[1]-O1_coor[1]>10){
                                         O_coor_period=O2_coor;
                                         O_coor_period[1]-=y_length;
                                     }
-                                    else if (O2_coor[1]<O1_coor[1]){
+                                    else if (O2_coor[1]-O1_coor[1]<-10){
                                         O_coor_period=O2_coor;
                                         O_coor_period[1]+=y_length;
                                     }
+
                                     if (judge_H_Bond(O1_coor, H1_coor, O_coor_period)) {
                                         connection_data[wat1_i][0]=O_WAT_id[wat2_i];
+
                                     }
                                     if (judge_H_Bond(O1_coor, H2_coor, O_coor_period)) {
                                         connection_data[wat1_i][1]=O_WAT_id[wat2_i];
@@ -161,21 +168,24 @@ int main() {
                                 }
                                 if (i==0 && j==0){
 
-                                    if (O2_coor[1]>O1_coor[1]&&O2_coor[0]>O1_coor[0]){
+                                    if (O2_coor[1]-O1_coor[1]>10&&O2_coor[0]-O1_coor[0]>10){
                                         O_coor_period=O2_coor;
-                                        O_coor_period[1]-=x_length;
+                                        O_coor_period[0]-=x_length;
                                         O_coor_period[1]-=y_length;
                                     }
-                                    else  if (O2_coor[1]<O1_coor[1] && O2_coor[0]<O1_coor[0]){
+                                    else  if (O2_coor[1]-O1_coor[1]<-10 && O2_coor[0]-O1_coor[0]<-10){
                                         O_coor_period=O2_coor;
-                                        O_coor_period[1]+=x_length;
+                                        O_coor_period[0]+=x_length;
                                         O_coor_period[1]+=y_length;
                                     }
+
                                     if (judge_H_Bond(O1_coor, H1_coor, O_coor_period)) {
                                         connection_data[wat1_i][0]=O_WAT_id[wat2_i];
+                                        //std::cout<<O_WAT_id[wat1_i]<<"   "<<O_WAT_id[wat2_i]<<"  ";
                                     }
                                     if (judge_H_Bond(O1_coor, H2_coor, O_coor_period)) {
                                         connection_data[wat1_i][1]=O_WAT_id[wat2_i];
+                                        //std::cout<<O_WAT_id[wat1_i]<<"   "<<O_WAT_id[wat2_i]<<"  ";
                                     }
                                 }
                             }
