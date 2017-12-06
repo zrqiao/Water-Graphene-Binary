@@ -14,25 +14,23 @@ double factor_cos(double input){
     return input;
 }
 
-int RCF_test(char* dist,int temperature,int start_nc,int end_nc) {
+int RCF_HBNum(char *dist, int temperature, int start_nc, int end_nc) {
     CreatDir("Analysis/Rotational_Relaxation");
-    CreatDir("Analysis/Diffusion");
     typedef std::vector<double>::size_type index;
-    std::cout << "program to calculate the H-BOND and cluster distribution"<< "\n"<< std::endl;
+    std::cout << "program to calculate O-H, dipole and normal vector RCF by H bond number"<< "\n"<< std::endl;
     char out_name[64];
     amber_parm parm_name(name_parm7);
     std::vector <index0> O_WAT_id = parm_name.id_by_type("OW");
     long long cluster_size_distribution[O_WAT_id.size()]={0};
     int state_by_id[O_WAT_id.size()]={0};
-    std::vector<std::vector<double>> RCF_sum_OH (7,std::vector<double>(frame_segment,0));
-    std::vector<std::vector<double>> RCF_sum_dip(7,std::vector<double>(frame_segment,0));
-    std::vector<std::vector<double>> RCF_sum_nor(7,std::vector<double>(frame_segment,0));
-    std::vector<std::vector<double>> Diffusion_sum_O(7,std::vector<double>(frame_segment,0));
-    int tot_count[7][frame_segment]={0};
     std::vector<double> OH1_vec(3,0),OH2_vec(3,0),Dip_vec(3,0),Nor_vec(3,0);
     std::vector<double> OH1_vec_0(3,0),OH2_vec_0(3,0),Dip_vec_0(3,0),Nor_vec_0(3,0);
     std::vector<double> O_coor, O1_coor,O2_coor, H1O_coor, H2O_coor,H1_coor, H2_coor,O_coor_0;
     for (int nc = start_nc; nc <= end_nc; nc++) {
+        double RCF_sum_OH [7][frame_segment]={0};
+        double RCF_sum_dip[7][frame_segment]={0};
+        double RCF_sum_nor[7][frame_segment]={0};
+        int tot_count[7][frame_segment]={0};
         char name_nc[64];
         sprintf(name_nc, "density_dis%s_WAT1150_NVT_%d_%d.nc",dist,temperature,nc);
         nctraj nc_data(name_nc);
@@ -114,12 +112,10 @@ int RCF_test(char* dist,int temperature,int start_nc,int end_nc) {
                 RCF_sum_nor[HBN][frame_r]+=factor_cos(vector_calc::vector_angle(Nor_vec,Nor_vec_0));
                 RCF_sum_OH[HBN][frame_r]+=factor_cos(vector_calc::vector_angle(OH1_vec,OH1_vec_0));
                 RCF_sum_OH[HBN][frame_r]+=factor_cos(vector_calc::vector_angle(OH2_vec,OH2_vec_0));
-                Diffusion_sum_O[HBN][frame_r]+=pow(vector_calc::vector_module(vector_calc::vector_minus(O_coor,O_coor_0)),2);
                 RCF_sum_dip[6][frame_r]+=factor_cos(vector_calc::vector_angle(Dip_vec,Dip_vec_0));
                 RCF_sum_nor[6][frame_r]+=factor_cos(vector_calc::vector_angle(Nor_vec,Nor_vec_0));
                 RCF_sum_OH[6][frame_r]+=factor_cos(vector_calc::vector_angle(OH1_vec,OH1_vec_0));
                 RCF_sum_OH[6][frame_r]+=factor_cos(vector_calc::vector_angle(OH2_vec,OH2_vec_0));
-                Diffusion_sum_O[6][frame_r]+=pow(vector_calc::vector_module(vector_calc::vector_minus(O_coor,O_coor_0)),2);
             }
         }
         infile.close();
@@ -134,7 +130,6 @@ int RCF_test(char* dist,int temperature,int start_nc,int end_nc) {
             distribution_out << RCF_sum_OH[3][i]/(tot_count[3][i]*2) << std::setw(15);
             distribution_out << RCF_sum_OH[4][i]/(tot_count[4][i]*2) << std::setw(15);
             distribution_out<<std::endl;
-
         }
         distribution_out.close();
         sprintf(out_name,"Analysis/Rotational_Relaxation/Dip_HB_test_nc%02d.dat",nc);
@@ -158,19 +153,6 @@ int RCF_test(char* dist,int temperature,int start_nc,int end_nc) {
             distribution_out << RCF_sum_nor[2][i]/(tot_count[2][i]) << std::setw(15);
             distribution_out << RCF_sum_nor[3][i]/(tot_count[3][i]) << std::setw(15);
             distribution_out << RCF_sum_nor[4][i]/(tot_count[4][i]) << std::setw(15);
-            distribution_out<<std::endl;
-        }
-        distribution_out.close();
-        sprintf(out_name,"Analysis/Diffusion/Diffusion_test_nc%02d.dat", nc);
-        distribution_out.open(out_name);
-        for (int i = 0; i != frame_segment; i++) {
-            distribution_out << i*0.25 << std::setw(15);
-            distribution_out <<Diffusion_sum_O [0][i]/(tot_count[0][i]) << std::setw(15);
-            distribution_out << Diffusion_sum_O[1][i]/(tot_count[1][i]) << std::setw(15);
-            distribution_out << Diffusion_sum_O[2][i]/(tot_count[2][i]) << std::setw(15);
-            distribution_out << Diffusion_sum_O[3][i]/(tot_count[3][i]) << std::setw(15);
-            distribution_out << Diffusion_sum_O[4][i]/(tot_count[4][i]) << std::setw(15);
-            distribution_out << Diffusion_sum_O[6][i]/(tot_count[6][i]) << std::setw(15);
             distribution_out<<std::endl;
         }
         distribution_out.close();
