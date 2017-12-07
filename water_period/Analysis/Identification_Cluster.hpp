@@ -17,19 +17,16 @@ int Calc_Cluster(char* dist,int temperature,int start_nc,int end_nc) {
     amber_parm parm_name(name_parm7);
     std::vector <index0> O_WAT_id = parm_name.id_by_type("OW");
     int num[5];
+    int WAT_ID_to_i[12000];
+    for (int i=0; i<12000;i++) WAT_ID_to_i[i]=-1;
+    for (int i=0; i<O_WAT_id.size();i++) WAT_ID_to_i[O_WAT_id[i]]=i;
     for (int nc = start_nc; nc <= end_nc; nc++) {
         long double cluster_size_distribution[O_WAT_id.size()]={0};
         char infile_name[64];
         sprintf(infile_name, "Analysis/HB_Network/nc_%02d.dat", nc);
         std::ifstream infile;
         infile.open(infile_name);
-        int WAT_ID_to_i[12000];
-        for (int i=0; i<12000;i++){
-            WAT_ID_to_i[i]=-1;
-        }
-        for (int i=0; i<O_WAT_id.size();i++){
-            WAT_ID_to_i[O_WAT_id[i]]=i;
-        }
+
         sprintf(out_name, "Analysis/Cluster_Data/nc_%02d.dat", nc);
         std::ofstream outfile;
         outfile.open(out_name);

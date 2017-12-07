@@ -25,7 +25,7 @@ int Diffusion_HBNum(char *dist, int temperature, int start_nc, int end_nc) {
         double Diffusion_sum_O[7][frame_segment]={0};
         int tot_count[7][frame_segment]={0};
         char name_nc[64];
-        sprintf(name_nc, "density_dis%s_WAT1150_NVT_%d_unwraped_%d.nc",dist,temperature,nc);
+        sprintf(name_nc, "density_dis%s_WAT1150_NVT_%d_unwrapped_%d.nc",dist,temperature,nc);
         nctraj nc_data(name_nc);
         int tot_frame=nc_data.frames_number();
         char infile_name[64];
