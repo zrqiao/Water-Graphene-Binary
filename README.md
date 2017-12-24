@@ -4,4 +4,4 @@ A project being conducted by an undergraduate student in Gao Group.
 
 Thermodynamics, structure and dynamics of water confined in graphene membranes
 
-All Right Reserved, Gao Group@ College of Chemistry and Molecular Engineering, Peking University,.
+All Right Reserved, Gao Group@ College of Chemistry and Molecular Engineering, Peking University.
