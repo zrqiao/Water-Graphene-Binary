@@ -34,6 +34,10 @@
 //#define dist "7a5"
 //#define temperature 320
 //~ #define name_nc "water_ion_graphene_10a5"c
+typedef std::vector<double>::size_type index0;
+
+
+
 namespace dir_tool
 {
     int mkpath(std::string s,mode_t mode=0755)
@@ -107,7 +111,7 @@ int CreatDir(char *pDir)
     free(pszDir);
     return iRet;
 }
-typedef std::vector<double>::size_type index0;
+
 double calc_angle_z_axis(std::vector<double> ori) {
     std::vector<double> z_axis = {0, 0, 1};
     double angle;

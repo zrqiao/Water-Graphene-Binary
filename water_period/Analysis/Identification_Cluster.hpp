@@ -137,7 +137,7 @@ int Calc_Cluster(char* dist,int temperature,int start_nc,int end_nc) {
                 outfile<<std::endl;
                 //std::cout<<std::endl;
             }
-            max_cluster_out<<nc*20000+frame_id<<std::setw(7)<<max_cluster_size<<std::setw(7)<<max2_cluster_size<<std::setw(7)<<max3_cluster_size<<std::endl;
+            max_cluster_out<<nc*tot_frame+frame_id<<std::setw(7)<<max_cluster_size<<std::setw(7)<<max2_cluster_size<<std::setw(7)<<max3_cluster_size<<std::endl;
         }
         infile.close();
         outfile.close();

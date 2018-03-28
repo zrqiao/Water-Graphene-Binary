@@ -35,8 +35,6 @@ int RCF_HBNum(char *dist, int temperature, int start_nc, int end_nc) {
         sprintf(name_nc, "density_dis%s_WAT1150_NVT_%d_%d.nc",dist,temperature,nc);
         nctraj nc_data(name_nc);
         int tot_frame=nc_data.frames_number();
-        char infile_name[64];
-        sprintf(infile_name, "Analysis/HB_Network/nc_%02d.dat",nc);
         int WAT_ID_to_i[12000]={-1};
         for (int i=0; i<12000;i++){
             WAT_ID_to_i[i]=-1;
@@ -44,12 +42,15 @@ int RCF_HBNum(char *dist, int temperature, int start_nc, int end_nc) {
         for (int i=0; i<O_WAT_id.size();i++){
             WAT_ID_to_i[O_WAT_id[i]]=i;
         }
+        char infile_name[64];
+        sprintf(infile_name, "Analysis/HB_Network/nc_%02d.dat",nc);
         std::ifstream infile;
+        infile.open(infile_name);
+        double num[5];
+        infile>>num[0]>>num[1]>>num[2]>>num[3]>>num[4];
         std::vector<int> nc_HB_connection_list[tot_frame/frame_segment][O_WAT_id.size()]={std::vector<int>()};
         std::ofstream outfile;
-        double num[5];
-        infile.open(infile_name);
-        infile>>num[0]>>num[1]>>num[2]>>num[3]>>num[4];
+
         for (int frame_id=0;frame_id<tot_frame;frame_id++) {
             int HB_Number_SUM[5] = {0};
             //~ double total_hbond = 0;

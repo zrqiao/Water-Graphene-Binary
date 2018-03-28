@@ -27,10 +27,8 @@
 #define x_length 99.4194366
 #define y_length 96.5999970
 #define dt 1
-
 #define dr 0.01
 #define C_NUM 3772
-#define name_parm7 "../../../density_dis6a5_WAT1150.parm7"
 //#define dist "7a5"
 //#define temperature 320
 //~ #define name_nc "water_ion_graphene_10a5"c
