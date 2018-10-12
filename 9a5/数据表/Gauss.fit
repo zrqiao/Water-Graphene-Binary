@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fit>
+<fit version="1.0">
+<model>Gauss</model>
+<type>0</type>
+<function>y0+A*sqrt(2/PI)/w*exp(-2*((x-xc)/w)^2)</function>
+<parameter>
+    <name>A</name>
+    <explanation>area</explanation>
+    <value>7.3383461643260e-01</value>
+</parameter>
+<parameter>
+    <name>xc</name>
+    <explanation>center</explanation>
+    <value>3.3693448093570e-02</value>
+</parameter>
+<parameter>
+    <name>w</name>
+    <explanation>width</explanation>
+    <value>5.4996410650430e-03</value>
+</parameter>
+<parameter>
+    <name>y0</name>
+    <explanation>offset</explanation>
+    <value>7.8330772645480e-01</value>
+</parameter>
+</fit>

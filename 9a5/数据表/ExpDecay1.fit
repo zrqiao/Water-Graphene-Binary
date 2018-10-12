@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fit>
+<fit version="1.0">
+<model>ExpDecay1</model>
+<type>0</type>
+<function>y0+A*exp(-x/t)</function>
+<parameter>
+    <name>A</name>
+    <explanation>amplitude</explanation>
+    <value>1.0000000000000e-01</value>
+</parameter>
+<parameter>
+    <name>t</name>
+    <explanation>e-folding time</explanation>
+    <value>1.0000000000000e-01</value>
+</parameter>
+<parameter>
+    <name>y0</name>
+    <explanation>offset</explanation>
+    <value>0.0000000000000e+00</value>
+</parameter>
+</fit>

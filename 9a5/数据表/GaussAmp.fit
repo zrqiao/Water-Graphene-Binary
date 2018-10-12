@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fit>
+<fit version="1.0">
+<model>GaussAmp</model>
+<type>0</type>
+<function>y0+A*exp(-(x-xc)^2/(2*w^2))</function>
+<parameter>
+    <name>y0</name>
+    <explanation>offset</explanation>
+    <value>2.8789423614470e-01</value>
+</parameter>
+<parameter>
+    <name>A</name>
+    <explanation>amplitude</explanation>
+    <value>1.1278761975300e+02</value>
+</parameter>
+<parameter>
+    <name>xc</name>
+    <explanation>center</explanation>
+    <value>-1.9354835673730e-01</value>
+</parameter>
+<parameter>
+    <name>w</name>
+    <explanation>width</explanation>
+    <value>2.6960866280150e-03</value>
+</parameter>
+</fit>
